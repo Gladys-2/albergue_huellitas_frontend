@@ -1,0 +1,93 @@
+.navbar {
+  width: 100%;
+  background-color: #4a90e2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  height: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn {
+  position: absolute; 
+  left: 20px; 
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.navbar-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background-color: #2c3e50;
+  color: rgb(230, 197, 90);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  transition: width 0.3s ease;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  align-self: flex-start;
+  margin: 0 0 20px 20px;
+}
+
+.sidebar-title {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: #f9b233;
+}
+
+.sidebar-buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+.sidebar-buttons button {
+  width: 85%;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  text-align: left;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.sidebar-buttons button:hover {
+  background-color: #34495e;
+}
