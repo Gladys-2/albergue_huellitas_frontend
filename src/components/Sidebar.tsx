@@ -2,16 +2,15 @@ import React from "react";
 import {
   FaHome,
   FaUsers,
-  FaPaw,
+  FaBook,
+  FaChalkboardTeacher,
   FaChartBar,
-  FaShoppingCart,
   FaCog,
   FaSignOutAlt,
 } from "react-icons/fa";
 
 interface SidebarProps {
   collapsed: boolean;
-  toggleSidebar: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
@@ -19,54 +18,119 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
     <aside
       style={{
         width: collapsed ? "70px" : "220px",
-        backgroundColor: "#fff",
+        backgroundColor: "#ffffff",
         borderRight: "1px solid #e0e0e0",
         height: "100vh",
-        padding: "20px 10px",
-        transition: "0.3s",
+        paddingTop: 90, // espacio para el navbar
+        transition: "width 0.3s ease",
         position: "fixed",
         top: 0,
         left: 0,
         overflow: "hidden",
+        boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
+        zIndex: 90,
       }}
     >
-      <nav style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-        <a href="#" style={linkStyle}>
-          <FaHome /> {!collapsed && <span>Inicio</span>}
-        </a>
-        <a href="#" style={linkStyle}>
-          <FaUsers /> {!collapsed && <span>Usuarios</span>}
-        </a>
-        <a href="#" style={linkStyle}>
-          <FaPaw /> {!collapsed && <span>Mascotas</span>}
-        </a>
-        <a href="#" style={linkStyle}>
-          <FaShoppingCart /> {!collapsed && <span>Adopciones</span>}
-        </a>
-        <a href="#" style={linkStyle}>
-          <FaChartBar /> {!collapsed && <span>Reportes</span>}
-        </a>
-        <a href="#" style={linkStyle}>
-          <FaCog /> {!collapsed && <span>Configuración</span>}
-        </a>
-        <a href="#" style={{ ...linkStyle, marginTop: "auto", color: "#e74c3c" }}>
-          <FaSignOutAlt /> {!collapsed && <span>Salir</span>}
-        </a>
+      <nav
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          padding: "0 10px",
+        }}
+      >
+        {/* Sección de navegación */}
+        <SidebarLink
+          icon={<FaHome />}
+          label="Inicio"
+          collapsed={collapsed}
+        />
+        <SidebarLink
+          icon={<FaUsers />}
+          label="Usuarios"
+          collapsed={collapsed}
+          active
+        />
+        <SidebarLink
+          icon={<FaBook />}
+          label="Materias"
+          collapsed={collapsed}
+        />
+        <SidebarLink
+          icon={<FaChalkboardTeacher />}
+          label="Docentes"
+          collapsed={collapsed}
+        />
+        <SidebarLink
+          icon={<FaChartBar />}
+          label="Reportes"
+          collapsed={collapsed}
+        />
+        <SidebarLink
+          icon={<FaCog />}
+          label="Configuración"
+          collapsed={collapsed}
+        />
+
+        {/* Botón de salir */}
+        <div style={{ marginTop: "auto" }}>
+          <SidebarLink
+            icon={<FaSignOutAlt />}
+            label="Salir"
+            collapsed={collapsed}
+            color="#e74c3c"
+          />
+        </div>
       </nav>
     </aside>
   );
 };
 
-const linkStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  textDecoration: "none",
-  color: "#2c3e50",
-  fontWeight: 500,
-  padding: "10px",
-  borderRadius: "10px",
-  transition: "0.3s",
+// 🔹 Componente de enlace del sidebar
+interface SidebarLinkProps {
+  icon: React.ReactNode;
+  label: string;
+  collapsed: boolean;
+  active?: boolean;
+  color?: string;
+}
+
+const SidebarLink: React.FC<SidebarLinkProps> = ({
+  icon,
+  label,
+  collapsed,
+  active = false,
+  color = "#333",
+}) => {
+  return (
+    <a
+      href="#"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        textDecoration: "none",
+        color: color,
+        fontWeight: 500,
+        fontSize: 15,
+        padding: "10px",
+        borderRadius: "10px",
+        transition: "0.3s ease",
+        backgroundColor: active ? "rgba(19, 116, 151, 0.1)" : "transparent",
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.backgroundColor = "rgba(19,116,151,0.08)";
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.backgroundColor = active
+          ? "rgba(19,116,151,0.1)"
+          : "transparent";
+      }}
+    >
+      <span style={{ fontSize: 18 }}>{icon}</span>
+      {!collapsed && <span>{label}</span>}
+    </a>
+  );
 };
 
 export default Sidebar;

@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBell, FaQuestionCircle, FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaBell, FaQuestionCircle } from "react-icons/fa";
 import { HiOutlineMenu } from "react-icons/hi";
 import type { Usuario } from "../types";
 
@@ -11,39 +11,80 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
   return (
     <header
-      className="flex justify-between items-center bg-yellow-400 px-6 py-3 shadow-md sticky top-0 z-50 w-full"
       style={{
-        flexWrap: "nowrap",
-        position: "sticky",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        backgroundColor: "#fff",
+        height: 70,
+        padding: "0 20px",
+        position: "fixed",
         top: 0,
         left: 0,
-        right: 0,
-        zIndex: 50,
+        boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
+        zIndex: 100,
+        boxSizing: "border-box",
       }}
     >
-      {/* Izquierda: menú + logo */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={toggleSidebar}
-          className="text-2xl text-white hover:text-orange-200 transition-colors"
-        >
-          <HiOutlineMenu />
-        </button>
+      {/* Botón de menú */}
+      <button
+        onClick={toggleSidebar}
+        style={{
+          fontSize: 26,
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+          color: "#333",
+          flexShrink: 0,
+        }}
+      >
+        <HiOutlineMenu />
+      </button>
 
-        <h1 className="text-white font-bold text-xl">
-          🐾 <span className="text-orange-500">Huellitas</span>
+      {/* Título centrado */}
+      <div
+        style={{
+          flex: 1,
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          padding: "0 10px",
+        }}
+      >
+        <h1 style={{ margin: 0, fontWeight: "bold", fontSize: 22, color: "#137497" }}>
+          Panel de Usuarios
         </h1>
-
-        <span className="text-white font-medium">
-          {usuario ? usuario.nombre : "Administrador"}
-        </span>
       </div>
 
-      {/* Derecha: iconos */}
-      <div className="flex items-center gap-6 text-white">
-        <FaQuestionCircle size={18} className="cursor-pointer hover:text-orange-200 transition-colors" />
-        <FaBell size={18} className="cursor-pointer hover:text-orange-200 transition-colors" />
-        <FaUserCircle size={28} className="cursor-pointer text-orange-400 hover:text-orange-300 transition-colors" />
+      {/* Iconos y usuario */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 15,
+          flexShrink: 0,
+          maxWidth: 250,
+        }}
+      >
+        {usuario && (
+          <span
+            style={{
+              fontSize: 14,
+              color: "#555",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {usuario.nombre} {usuario.apellidoPaterno}
+          </span>
+        )}
+
+        <FaQuestionCircle size={22} style={{ cursor: "pointer", color: "#333" }} />
+        <FaBell size={22} style={{ cursor: "pointer", color: "#333" }} />
+        <FaUserCircle size={30} style={{ cursor: "pointer", color: "#137497" }} />
       </div>
     </header>
   );
