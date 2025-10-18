@@ -1,47 +1,89 @@
-import React, { useState } from "react";
-import "./App.css";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import BandejaUsuarios from "./components/BandejaUsuarios";
 import ModalUsuario from "./components/ModalUsuario";
-import type { Usuario } from "./types";
 import LoginScreen from "./components/LoginScreen";
-import RegistroScreen from "./components/Registro";
-import OtpScreen from "./components/OtpScreen";
+import Registro from "./components/Registro";
+import type { Usuario } from "./types";
 
-type Pantalla = "login" | "registro" | "otp" | "dashboard";
+type Pantalla = "login" | "registro" | "dashboard";
 
 const App: React.FC = () => {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [usuarios, setUsuarios] = useState<Usuario[]>([
-    { id: 1, nombre: "Charly Limachi", correo: "Charly@gmail.com", contraseña: "1234" },
-    { id: 2, nombre: "Ana Pérez", correo: "Ana@gmail.com", contraseña: "abcd" },
-  ]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [usuarioEditar, setUsuarioEditar] = useState<Usuario | null>(null);
-  const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
 
-  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const irLogin = () => setPantalla("login");
   const irRegistro = () => setPantalla("registro");
-  const irOtp = () => setPantalla("otp");
   const irDashboard = () => setPantalla("dashboard");
 
-  // Guardar usuario (crear o editar)
-  const handleGuardar = (usuario: Omit<Usuario, "id">) => {
-    if (usuarioEditar) {
-      setUsuarios(prev =>
-        prev.map(u => (u.id === usuarioEditar.id ? { ...u, ...usuario } : u))
-      );
-    } else {
-      // Generar id secuencial
-      const nuevoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
-      const nuevoUsuario: Usuario = { id: nuevoId, ...usuario };
-      setUsuarios(prev => [...prev, nuevoUsuario]);
+  // Cargar usuarios desde backend
+  const cargarUsuarios = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/usuarios");
+      setUsuarios(response.data);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
     }
-    setMostrarModal(false);
-    setUsuarioEditar(null);
+  };
+
+  useEffect(() => {
+    if (pantalla === "dashboard") {
+      cargarUsuarios();
+    }
+  }, [pantalla]);
+
+  // LOGIN
+  const handleLogin = async (correo: string, contrasena: string) => {
+    try {
+      const res = await axios.post("http://localhost:5000/api/usuarios/login", {
+        correo_electronico: correo,
+        contrasena,
+      });
+      setUsuarioActual(res.data.usuario);
+      irDashboard();
+    } catch (error) {
+      alert("Usuario o contraseña incorrecta");
+    }
+  };
+
+  // REGISTRO
+  const handleRegister = async (usuario: Omit<Usuario, "id">) => {
+    try {
+      await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
+      alert("Usuario registrado. Por favor inicia sesión.");
+      irLogin();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Error al registrar usuario");
+    }
+  };
+
+  // GUARDAR / EDITAR
+  const handleGuardar = async (usuario: Omit<Usuario, "id">) => {
+    if (usuarioEditar) {
+      try {
+        await axios.put(`http://localhost:5000/api/usuarios/${usuarioEditar.id}`, usuario);
+        setUsuarioEditar(null);
+        setMostrarModal(false);
+        cargarUsuarios();
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
+        setMostrarModal(false);
+        cargarUsuarios();
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
 
   const handleEditar = (usuario: Usuario) => {
@@ -49,75 +91,68 @@ const App: React.FC = () => {
     setMostrarModal(true);
   };
 
-  const handleEliminar = (id: number) => {
-    setUsuarios(prev => prev.filter(u => u.id !== id));
+  const handleEliminar = async (id: number) => {
+    if (!window.confirm("¿Deseas eliminar este usuario?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/usuarios/${id}`);
+      cargarUsuarios();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
+  // ---- INTERFAZ VISUAL ----
   return (
-    <div className="app">
+    <div className="min-h-screen bg-gray-50 flex font-sans">
       {pantalla === "login" && (
-        <LoginScreen
-          onLogin={(correo, contraseña) => {
-            const user = usuarios.find(
-              u => u.correo === correo && u.contraseña === contraseña
-            );
-            if (user) {
-              setUsuarioActual(user);
-              irOtp();
-            } else {
-              alert("Usuario o contraseña incorrecta");
-            }
-          }}
-          mostrarRegistro={irRegistro}
-        />
+        <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />
       )}
 
       {pantalla === "registro" && (
-        <RegistroScreen
-          onRegister={(usuario: Omit<Usuario, "id">) => {
-            const nuevoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
-            const nuevoUsuario: Usuario = { id: nuevoId, ...usuario };
-            setUsuarios(prev => [...prev, nuevoUsuario]);
-            alert("Usuario registrado. Por favor inicia sesión.");
-            irLogin();
-          }}
-          mostrarLogin={irLogin}
-        />
-      )}
-
-      {pantalla === "otp" && usuarioActual && (
-        <OtpScreen
-          verificarOtp={() => irDashboard()}
-          regresarLogin={irLogin}
-        />
+        <Registro onRegister={handleRegister} mostrarLogin={irLogin} />
       )}
 
       {pantalla === "dashboard" && usuarioActual && (
-        <>
-          <Navbar toggleSidebar={toggleSidebar} />
-          <Sidebar collapsed={sidebarCollapsed} toggleSidebar={function (): void {
-            throw new Error("Function not implemented.");
-          } } />
+        <div className="flex w-full">
+          {/* Sidebar fijo */}
+          <Sidebar collapsed={!sidebarOpen} toggleSidebar={toggleSidebar} />
 
-          <main className={`main ${sidebarCollapsed ? "collapsed" : ""}`}>
-            <div className="usuarios-header">
-              <h1>Usuarios Registrados</h1>
-              <button
-                className="btn-crear"
-                onClick={() => setMostrarModal(true)}
-              >
-                Crear Usuario
-              </button>
-            </div>
+          {/* Contenedor principal */}
+          <div
+            className={`flex flex-col flex-1 transition-all duration-300 ${
+              sidebarOpen ? "ml-56" : "ml-16"
+            }`}
+          >
+            {/* Navbar arriba */}
+            <Navbar toggleSidebar={toggleSidebar} usuario={usuarioActual} />
 
-            <BandejaUsuarios
-              usuarios={usuarios}
-              onEditar={handleEditar}
-              onEliminar={handleEliminar}
-              onSave={handleGuardar}
-            />
-          </main>
+            {/* Contenido central */}
+            <main className="flex-1 p-8 bg-gray-100 overflow-x-auto">
+              <div className="bg-white rounded-2xl shadow-lg p-8 max-w-6xl mx-auto">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+                  🐾 Registro de Usuario
+                </h1>
 
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={() => setMostrarModal(true)}
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-lg transition-colors"
+                  >
+                    + Crear Usuario
+                  </button>
+                </div>
+
+                <BandejaUsuarios
+                  usuarios={usuarios}
+                  onEditar={handleEditar}
+                  onEliminar={handleEliminar}
+                  onSave={() => {}}
+                />
+              </div>
+            </main>
+          </div>
+
+          {/* Modal usuario */}
           {mostrarModal && (
             <ModalUsuario
               usuario={usuarioEditar}
@@ -128,7 +163,7 @@ const App: React.FC = () => {
               onSave={handleGuardar}
             />
           )}
-        </>
+        </div>
       )}
     </div>
   );

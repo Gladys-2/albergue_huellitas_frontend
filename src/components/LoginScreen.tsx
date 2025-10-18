@@ -1,102 +1,48 @@
-import { useState } from 'react';
-import { FcGoogle } from 'react-icons/fc';
-import { FaFacebookF, FaApple } from 'react-icons/fa';
+import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF, FaApple, FaEnvelope, FaLock } from "react-icons/fa";
 
 interface LoginScreenProps {
-  onLogin: (correo: string, contraseña: string) => void;
+  onLogin: (correo: string, contrasena: string) => void;
   mostrarRegistro: () => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) => {
-  const [correo, setCorreo] = useState('');
-  const [contraseña, setContraseña] = useState('');
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(correo, contraseña);
-  };
-
-  const socialContainerStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '20px',
-    margin: '20px 0'
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px',
-    margin: '10px 0',
-    borderRadius: '8px',
-    border: '1px solid #ccc',
-    fontSize: '16px',
-  };
-
-  const btnStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#f39c12',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    marginTop: '10px'
+    onLogin(correo, contrasena);
   };
 
   return (
-    <div style={{
-      maxWidth: '400px',
-      margin: '50px auto',
-      padding: '30px',
-      borderRadius: '12px',
-      boxShadow: '0 6px 18px rgba(0, 0, 0, 0.1)',
-      backgroundColor: '#fff',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>Inicio de sesión</h2>
-      <p style={{ textAlign: 'center', marginBottom: '20px', color: '#2f1818ff' }}>Bienvenido de nuevo</p>
+    <div style={containerStyle}>
+      <h2 style={titleStyle}>Inicio de sesión</h2>
+      <p style={subtitleStyle}>Bienvenido de nuevo</p>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={contraseña}
-          onChange={(e) => setContraseña(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        <button type="submit" style={btnStyle}>Ingresar</button>
+      <form onSubmit={handleLogin} style={formStyle}>
+        <InputIcon icon={<FaEnvelope />} placeholder="Correo electrónico" value={correo} onChange={setCorreo} type="email" />
+        <InputIcon icon={<FaLock />} placeholder="Contraseña" value={contrasena} onChange={setContrasena} type="password" />
+        <button type="submit" style={buttonStyle}>Ingresar</button>
       </form>
 
-      <p style={{ textAlign: 'center', margin: '15px 0', color: '#555' }}>O inicia sesión con</p>
-
+      <p style={socialTextStyle}>O inicia sesión con</p>
       <div style={socialContainerStyle}>
         <a href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer">
-          <FcGoogle style={{ fontSize: '28px' }} />
+          <FcGoogle style={{ fontSize: 28 }} />
         </a>
-        <a href="https://www.facebook.com/login/" target="_blank" rel="noopener noreferrer" style={{ color: '#4267B2' }}>
-          <FaFacebookF style={{ fontSize: '28px' }} />
+        <a href="https://www.facebook.com/login/" target="_blank" rel="noopener noreferrer" style={{ color: "#4267B2" }}>
+          <FaFacebookF style={{ fontSize: 28 }} />
         </a>
-        <a href="https://appleid.apple.com/sign-in" target="_blank" rel="noopener noreferrer" style={{ color: '#000' }}>
-          <FaApple style={{ fontSize: '28px' }} />
+        <a href="https://appleid.apple.com/sign-in" target="_blank" rel="noopener noreferrer" style={{ color: "#000" }}>
+          <FaApple style={{ fontSize: 28 }} />
         </a>
       </div>
 
-      <p style={{ textAlign: 'center', marginTop: '20px' }}>
-        ¿No tienes cuenta?{' '}
-        <button
-          onClick={mostrarRegistro}
-          style={{ background: 'none', border: 'none', color: '#f39c12', cursor: 'pointer', fontWeight: 'bold' }}
-        >
+      <p style={footerTextStyle}>
+        ¿No tienes cuenta?{" "}
+        <button onClick={mostrarRegistro} style={linkStyle}>
           Crear cuenta
         </button>
       </p>
@@ -104,8 +50,50 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) =
   );
 };
 
+const InputIcon: React.FC<{ icon: React.ReactNode, placeholder: string, value: string, onChange: (val:string)=>void, type?:string }> = ({ icon, placeholder, value, onChange, type="text" }) => (
+  <div style={inputGroup}>
+    {icon}
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      style={inputStyle}
+      required
+    />
+  </div>
+);
+
+// === Estilos Responsivos ===
+const containerStyle: React.CSSProperties = {
+  maxWidth: 400,
+  width: "150%",
+  margin: "90px auto",
+  padding: 20,
+  borderRadius: 50,
+  boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+  backgroundColor: "#fff",
+  fontFamily: "Arial, sans-serif"
+};
+const titleStyle: React.CSSProperties = { textAlign: "center", marginBottom: 10, color: "#333", fontSize: 24 };
+const subtitleStyle: React.CSSProperties = { textAlign: "center", marginBottom: 20, color: "#555", fontSize: 16 };
+const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 12 };
+const inputStyle: React.CSSProperties = { width: "100%", padding: 12, borderRadius: 8, border: "1px solid #ccc", fontSize: 14, outline: "none" };
+const inputGroup: React.CSSProperties = { display: "flex", alignItems: "center", gap: 8 };
+const buttonStyle: React.CSSProperties = {
+  padding: 10,
+  borderRadius: 7,
+  border: "none",
+  backgroundColor: "#f39c12",
+  color: "#fff",
+  fontWeight: "bold",
+  cursor: "pointer",
+  transition: "0.3s",
+  fontSize:15
+};
+const socialTextStyle: React.CSSProperties = { textAlign: "center", margin: "15px 0", color: "#666" };
+const socialContainerStyle: React.CSSProperties = { display: "flex", justifyContent: "center", gap: 20, marginBottom: 20 };
+const footerTextStyle: React.CSSProperties = { textAlign: "center", color: "#666", fontSize: 14 };
+const linkStyle: React.CSSProperties = { background: "none", border: "none", color: "#f39c12", cursor: "pointer", fontWeight: "bold" };
+
 export default LoginScreen;
-
-
-
-

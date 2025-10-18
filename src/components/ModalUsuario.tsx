@@ -75,7 +75,3 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
 };
 
 export default ModalUsuario;
-
-
-
-
