@@ -16,33 +16,33 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
-        backgroundColor: "#fff",
+        background: "linear-gradient(90deg, #099c7cff, #00ffb7ff)",
         height: 70,
-        padding: "0 20px",
+        padding: "0 16px",
         position: "fixed",
         top: 0,
         left: 0,
-        boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
         zIndex: 100,
         boxSizing: "border-box",
+        color: "#000",
       }}
     >
-      {/* Botón de menú */}
       <button
         onClick={toggleSidebar}
         style={{
-          fontSize: 26,
+          fontSize: 25,
           cursor: "pointer",
-          background: "none",
+          background: "rgba(255,255,255,0.2)",
           border: "none",
-          color: "#333",
-          flexShrink: 0,
+          borderRadius: 8,
+          padding: "6px 8px",
+          color: "#fff",
+          transition: "all 0.3s ease",
         }}
       >
         <HiOutlineMenu />
       </button>
 
-      {/* Título centrado */}
       <div
         style={{
           flex: 1,
@@ -53,38 +53,59 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
           padding: "0 10px",
         }}
       >
-        <h1 style={{ margin: 0, fontWeight: "bold", fontSize: 22, color: "#137497" }}>
-          Panel de Usuarios
+        <h1
+          style={{
+            margin: 0,
+            fontWeight: "bold",
+            fontSize: 20,
+            color: "#000",
+          }}
+        >
+          Huellitas 🐾
         </h1>
       </div>
 
-      {/* Iconos y usuario */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 15,
+          gap: 10,
           flexShrink: 0,
-          maxWidth: 250,
+          maxWidth: 200,
         }}
       >
         {usuario && (
           <span
             style={{
-              fontSize: 14,
-              color: "#555",
+              fontSize: 12,
+              fontWeight: 500,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
+              padding: "4px 6px",
+              borderRadius: 6,
+              background: usuario.rol === "administrador" ? "#5bf7d8ff" : "rgba(0, 255, 145, 0.99)",
+              color: "#000",
+              transition: "all 0.3s ease",
             }}
           >
-            {usuario.nombre} {usuario.apellidoPaterno}
+            {usuario.nombre} {usuario.apellido_paterno}
           </span>
         )}
 
-        <FaQuestionCircle size={22} style={{ cursor: "pointer", color: "#333" }} />
-        <FaBell size={22} style={{ cursor: "pointer", color: "#333" }} />
-        <FaUserCircle size={30} style={{ cursor: "pointer", color: "#137497" }} />
+        {[FaQuestionCircle, FaBell, FaUserCircle].map((Icon, idx) => (
+          <Icon
+            key={idx}
+            size={20}
+            style={{
+              cursor: "pointer",
+              padding: 4,
+              borderRadius: 6,
+              color: "#fff",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
       </div>
     </header>
   );

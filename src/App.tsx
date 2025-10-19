@@ -12,7 +12,7 @@ type Pantalla = "login" | "registro" | "dashboard";
 
 const App: React.FC = () => {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mejor para móvil
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -23,23 +23,19 @@ const App: React.FC = () => {
   const irRegistro = () => setPantalla("registro");
   const irDashboard = () => setPantalla("dashboard");
 
-  // Cargar usuarios desde backend
   const cargarUsuarios = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/usuarios");
-      setUsuarios(response.data);
+      const res = await axios.get("http://localhost:5000/api/usuarios");
+      setUsuarios(res.data);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
     }
   };
 
   useEffect(() => {
-    if (pantalla === "dashboard") {
-      cargarUsuarios();
-    }
+    if (pantalla === "dashboard") cargarUsuarios();
   }, [pantalla]);
 
-  // LOGIN
   const handleLogin = async (correo: string, contrasena: string) => {
     try {
       const res = await axios.post("http://localhost:5000/api/usuarios/login", {
@@ -48,12 +44,11 @@ const App: React.FC = () => {
       });
       setUsuarioActual(res.data.usuario);
       irDashboard();
-    } catch (error) {
+    } catch {
       alert("Usuario o contraseña incorrecta");
     }
   };
 
-  // REGISTRO
   const handleRegister = async (usuario: Omit<Usuario, "id">) => {
     try {
       await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
@@ -64,25 +59,18 @@ const App: React.FC = () => {
     }
   };
 
-  // GUARDAR / EDITAR
   const handleGuardar = async (usuario: Omit<Usuario, "id">) => {
-    if (usuarioEditar) {
-      try {
+    try {
+      if (usuarioEditar) {
         await axios.put(`http://localhost:5000/api/usuarios/${usuarioEditar.id}`, usuario);
-        setUsuarioEditar(null);
-        setMostrarModal(false);
-        cargarUsuarios();
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      try {
+      } else {
         await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
-        setMostrarModal(false);
-        cargarUsuarios();
-      } catch (error) {
-        console.error(error);
       }
+      setMostrarModal(false);
+      setUsuarioEditar(null);
+      cargarUsuarios();
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -101,69 +89,56 @@ const App: React.FC = () => {
     }
   };
 
-  // ---- INTERFAZ VISUAL ----
   return (
-    <div className="min-h-screen bg-gray-50 flex font-sans">
-      {pantalla === "login" && (
-        <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />
-      )}
-
-      {pantalla === "registro" && (
-        <Registro onRegister={handleRegister} mostrarLogin={irLogin} />
-      )}
+    <div className="flex min-h-screen font-sans bg-gray-50">
+      {pantalla === "login" && <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />}
+      {pantalla === "registro" && <Registro onRegister={handleRegister} mostrarLogin={irRegistro} />}
 
       {pantalla === "dashboard" && usuarioActual && (
-        <div className="flex w-full">
-          {/* Sidebar fijo */}
+        <>
           <Sidebar collapsed={!sidebarOpen} toggleSidebar={toggleSidebar} />
-
-          {/* Contenedor principal */}
           <div
             className={`flex flex-col flex-1 transition-all duration-300 ${
-              sidebarOpen ? "ml-56" : "ml-16"
+              sidebarOpen ? "ml-56" : "ml-0"
             }`}
           >
-            {/* Navbar arriba */}
             <Navbar toggleSidebar={toggleSidebar} usuario={usuarioActual} />
-
-            {/* Contenido central */}
-            <main className="flex-1 p-8 bg-gray-100 overflow-x-auto">
-              <div className="bg-white rounded-2xl shadow-lg p-8 max-w-6xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-                  🐾 Registro de Usuario
-                </h1>
-
-                <div className="flex justify-end mb-4">
+            <main className="flex-1 p-4 md:p-6 bg-gray-100 overflow-auto">
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 max-w-full mx-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-800 text-center flex-1">
+                    🐾 Registro de Usuarios
+                  </h1>
                   <button
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold p-2 rounded-lg flex items-center justify-center"
                     onClick={() => setMostrarModal(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2 rounded-lg transition-colors"
+                    title="Crear Usuario"
                   >
-                    + Crear Usuario
+                    <span className="text-lg font-bold">+</span>
                   </button>
                 </div>
 
                 <BandejaUsuarios
                   usuarios={usuarios}
-                  onEditar={handleEditar}
+                  onEdit={handleEditar}
                   onEliminar={handleEliminar}
-                  onSave={() => {}}
+                  sidebarWidth={sidebarOpen ? 220 : 0}
                 />
               </div>
             </main>
           </div>
 
-          {/* Modal usuario */}
           {mostrarModal && (
             <ModalUsuario
               usuario={usuarioEditar}
               onClose={() => {
-                setUsuarioEditar(null);
                 setMostrarModal(false);
+                setUsuarioEditar(null);
               }}
               onSave={handleGuardar}
             />
           )}
-        </div>
+        </>
       )}
     </div>
   );
