@@ -29,32 +29,15 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
         padding: "20px",
         width: `calc(100% - ${sidebarWidth}px)`,
         marginLeft: sidebarWidth,
-        marginTop: 70, 
+        marginTop: 70,
         height: `calc(100vh - 70px)`,
-        overflowX: "auto",
+        overflowX: "auto", // permite scroll horizontal en pantallas pequeñas
         overflowY: "auto",
       }}
     >
-      <table
-        style={{
-          width: "95%",
-          minWidth: "900px",
-          borderCollapse: "collapse",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          borderRadius: 12,
-          overflow: "hidden",
-          margin: "0 auto",
-        }}
-      >
+      <table style={tableStyle}>
         <thead>
-          <tr
-            style={{
-              backgroundColor: "#116888",
-              color: "#fff",
-              textAlign: "center",
-              height: "50px",
-            }}
-          >
+          <tr style={theadTrStyle}>
             <th style={thStyle}>Nombre</th>
             <th style={thStyle}>Apellido</th>
             <th style={thStyle}>Cédula</th>
@@ -67,15 +50,7 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
         </thead>
         <tbody>
           {usuarios.map((u, idx) => (
-            <tr
-              key={idx}
-              style={{
-                backgroundColor: idx % 2 === 0 ? "#e6f0fa" : "#fdfdfd",
-                textAlign: "center",
-                height: "60px",
-                transition: "all 0.3s ease",
-              }}
-            >
+            <tr key={u.id} style={idx % 2 === 0 ? trEvenStyle : trOddStyle}>
               <td style={tdStyle}>{u.nombre}</td>
               <td style={tdStyle}>{u.apellido_paterno}</td>
               <td style={tdStyle}>{u.cedula_identidad}</td>
@@ -86,21 +61,12 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
               </td>
               <td style={tdStyle}>
                 {u.estado === "Activo" ? (
-                  <FaCheckCircle style={{ color: "#2ecc71", fontSize: 20 }} title="Activo" />
+                  <FaCheckCircle style={{ color: "#2ecc71", fontSize: 18 }} title="Activo" />
                 ) : (
-                  <FaTimesCircle style={{ color: "#e74c3c", fontSize: 20 }} title="Inactivo" />
+                  <FaTimesCircle style={{ color: "#e74c3c", fontSize: 18 }} title="Inactivo" />
                 )}
               </td>
-              <td
-                style={{
-                  ...tdStyle,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "9px",
-                  height: "100%",
-                }}
-              >
+              <td style={tdActionsStyle}>
                 <FaEye
                   style={iconStyle("#116888")}
                   title="Ver"
@@ -121,23 +87,73 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
           ))}
         </tbody>
       </table>
+      {/* CSS para responsividad */}
+      <style>{`
+        @media (max-width: 768px) {
+          table {
+            min-width: 600px; /* fuerza scroll horizontal en móviles */
+          }
+          th, td {
+            padding: 8px;
+            font-size: 13px;
+          }
+          tdActionsStyle svg {
+            font-size: 16px;
+            padding: 4px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
+/* ==== ESTILOS ==== */
+const tableStyle: React.CSSProperties = {
+  width: "100%",
+  minWidth: 900,
+  borderCollapse: "separate",
+  borderSpacing: 0,
+  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+  borderRadius: 12,
+  overflow: "hidden",
+  backgroundColor: "#fff",
+};
+
+const theadTrStyle: React.CSSProperties = {
+  backgroundColor: "#116888",
+  color: "#fff",
+  textAlign: "center",
+  height: 50,
+};
+
 const thStyle: React.CSSProperties = {
   padding: "12px",
-  border: "1px solid #0f6473",
+  borderBottom: "2px solid #0f6473",
   fontWeight: "bold",
+  textAlign: "center",
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "12px",
   textAlign: "center",
   verticalAlign: "middle",
 };
 
-const tdStyle: React.CSSProperties = {
-  padding: "10px",
-  border: "1px solid #0f6473",
-  textAlign: "center",
-  verticalAlign: "middle",
+const tdActionsStyle: React.CSSProperties = {
+  ...tdStyle,
+  display: "flex",
+  justifyContent: "center",
+  gap: 10,
+};
+
+const trEvenStyle: React.CSSProperties = {
+  backgroundColor: "#f9f9f9",
+  transition: "all 0.3s ease",
+};
+
+const trOddStyle: React.CSSProperties = {
+  backgroundColor: "#e6f0fa",
+  transition: "all 0.3s ease",
 };
 
 const iconStyle = (color: string): React.CSSProperties => ({
@@ -147,6 +163,8 @@ const iconStyle = (color: string): React.CSSProperties => ({
   padding: 6,
   borderRadius: 8,
   transition: "all 0.3s ease",
+  backgroundColor: "#f5f5f5",
+  boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
 });
 
 export default BandejaUsuarios;

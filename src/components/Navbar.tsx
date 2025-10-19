@@ -16,13 +16,13 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
-        background: "linear-gradient(90deg, #099c7cff, #00ffb7ff)",
-        height: 70,
+        background: "linear-gradient(90deg, #037288ff, #00ffcc95)",
+        height: 60,
         padding: "0 16px",
         position: "fixed",
         top: 0,
         left: 0,
-        zIndex: 100,
+        zIndex: 300,
         boxSizing: "border-box",
         color: "#000",
       }}
@@ -36,7 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
           border: "none",
           borderRadius: 8,
           padding: "6px 8px",
-          color: "#fff",
+          color: "#f8f8f8ff",
           transition: "all 0.3s ease",
         }}
       >
@@ -57,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
           style={{
             margin: 0,
             fontWeight: "bold",
-            fontSize: 20,
+            fontSize: 35,
             color: "#000",
           }}
         >
@@ -78,13 +78,13 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
           <span
             style={{
               fontSize: 12,
-              fontWeight: 500,
+              fontWeight: 200,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              padding: "4px 6px",
+              padding: "14px 9px",
               borderRadius: 6,
-              background: usuario.rol === "administrador" ? "#5bf7d8ff" : "rgba(0, 255, 145, 0.99)",
+              background: usuario.rol === "administrador" ? "#06dcb1ff" : "rgba(0, 255, 145, 1)",
               color: "#000",
               transition: "all 0.3s ease",
             }}
@@ -101,8 +101,8 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
               cursor: "pointer",
               padding: 4,
               borderRadius: 6,
-              color: "#fff",
-              transition: "all 0.3s ease",
+              color: "#0b4f76ff",
+              transition: "all 0.50s ease",
             }}
           />
         ))}
