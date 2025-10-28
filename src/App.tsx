@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, type CSSProperties } from "react";
 import axios from "axios";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -6,9 +6,15 @@ import BandejaUsuarios from "./components/BandejaUsuarios";
 import ModalUsuario from "./components/ModalUsuario";
 import LoginScreen from "./components/LoginScreen";
 import Registro from "./components/Registro";
-import type { Usuario } from "./types";
+import type { Usuario } from "./types/types";
+import Inicio from "./components/pages/Inicio";
+import Perros from "./components/pages/perros";
+import Gatos from "./components/pages/gatos";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-type Pantalla = "login" | "registro" | "dashboard";
+type Pantalla = "login" | "registro" | "dashboard" | "inicio" | "usuarios" | "perros" | "gatos";
 
 const App: React.FC = () => {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
@@ -17,11 +23,17 @@ const App: React.FC = () => {
   const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [usuarioEditar, setUsuarioEditar] = useState<Usuario | null>(null);
+  const [buscar, setBuscar] = useState("");
+  const [mostrar, setMostrar] = useState<number>(10);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const irLogin = () => setPantalla("login");
   const irRegistro = () => setPantalla("registro");
   const irDashboard = () => setPantalla("dashboard");
+  const irInicio = () => setPantalla("inicio");
+  const irUsuarios = () => setPantalla("usuarios");
+  const irPerros = () => setPantalla("perros");
+  const irGatos = () => setPantalla("gatos");
 
   const cargarUsuarios = async () => {
     try {
@@ -33,36 +45,30 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (pantalla === "dashboard") cargarUsuarios();
+    if (pantalla === "usuarios") cargarUsuarios();
   }, [pantalla]);
 
   const handleLogin = async (correo: string, contrasena: string) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/usuarios/login", {
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
         correo_electronico: correo,
         contrasena,
       });
       setUsuarioActual(res.data.usuario);
       irDashboard();
-    } catch {
-      alert("Usuario o contraseña incorrecta");
-    }
-  };
-
-  const handleRegister = async (usuario: Omit<Usuario, "id">) => {
-    try {
-      await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
-      alert("Usuario registrado. Por favor inicia sesión.");
-      irLogin();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al registrar usuario");
+      if (error.response) {
+        alert(error.response.data.message || "Usuario o contraseña incorrecta");
+      } else {
+        alert("Error de conexión con el servidor");
+      }
     }
   };
 
-  const handleGuardar = async (usuario: Omit<Usuario, "id">) => {
+  const handleGuardar = async (usuario: Usuario) => {
     try {
-      if (usuarioEditar) {
-        await axios.put(`http://localhost:5000/api/usuarios/${usuarioEditar.id}`, usuario);
+      if (usuario.id) {
+        await axios.put(`http://localhost:5000/api/usuarios/${usuario.id}`, usuario);
       } else {
         await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
       }
@@ -89,77 +95,190 @@ const App: React.FC = () => {
     }
   };
 
+  const exportCSV = () => {
+    const csv = [
+      ["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"],
+      ...usuarios.map((u) => [
+        u.nombre ?? "",
+        u.apellido_paterno ?? "",
+        u.apellido_materno ?? "",
+        u.cedula_identidad ?? "",
+        u.correo_electronico ?? "",
+        u.rol ?? "usuario",
+        u.estado ?? "Activo",
+      ]),
+    ]
+      .map((e) => e.join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "usuarios.csv";
+    link.click();
+  };
+
+  const exportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      usuarios.map((u) => ({
+        Nombre: u.nombre ?? "",
+        "Apellido Paterno": u.apellido_paterno ?? "",
+        "Apellido Materno": u.apellido_materno ?? "",
+        Cédula: u.cedula_identidad ?? "",
+        Correo: u.correo_electronico ?? "",
+        Rol: u.rol ?? "usuario",
+        Estado: u.estado ?? "Activo",
+      }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+    XLSX.writeFile(wb, "usuarios.xlsx");
+  };
+
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    const head = [["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"]];
+    const body = usuarios.map((u) => [
+      u.nombre ?? "",
+      u.apellido_paterno ?? "",
+      u.apellido_materno ?? "",
+      u.cedula_identidad ?? "",
+      u.correo_electronico ?? "",
+      u.rol ?? "usuario",
+      u.estado ?? "Activo",
+    ]);
+
+    (doc as any).autoTable({
+      head,
+      body,
+      startY: 20,
+      headStyles: { fillColor: [255, 0, 0], textColor: 255 },
+      bodyStyles: { textColor: 0 },
+    });
+
+    doc.save("usuarios.pdf");
+  };
+
+  const usuariosFiltrados = usuarios
+    .filter(
+      (u) =>
+        (u.nombre ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
+        (u.apellido_paterno ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
+        (u.apellido_materno ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
+        (u.correo_electronico ?? "").toLowerCase().includes(buscar.toLowerCase())
+    )
+    .slice(0, mostrar > 0 ? mostrar : usuarios.length);
+
+  const styles: { [key: string]: CSSProperties } = {
+    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #81e6d9, #ffffff, #81e6d9)" },
+    mainSection: { flex: 1, transition: "padding-left 0.3s" },
+    content: { padding: "1rem", overflowY: "auto" },
+    bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", width: "100%" },
+    bandejaHeader: { display: "flex", flexDirection: "column", gap: "1rem" },
+    titulo: { fontSize: "2rem", color: "#319795", textAlign: "center", fontWeight: "bold" },
+    accionesHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" },
+    accionesIzquierda: { display: "flex", alignItems: "center", gap: "0.5rem" },
+    accionesDerecha: { display: "flex", alignItems: "center", gap: "0.5rem" },
+    selectMostrar: { marginLeft: "0.25rem", padding: "0.25rem", borderRadius: "0.25rem" },
+    btnCSV: { backgroundColor: "#63b3ed", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
+    btnExcel: { backgroundColor: "#38a169", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
+    btnPDF: { backgroundColor: "#e53e3e", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
+    inputBuscar: { padding: "0.4rem 0.6rem", border: "1px solid #ccc", borderRadius: "0.25rem" },
+    btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", marginLeft: "0.5rem" },
+  };
+
   return (
-    <div className="flex min-h-screen font-sans bg-gradient-to-r from-teal-100 via-white to-teal-100">
-      {pantalla === "login" && (
-        <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />
-      )}
-      {pantalla === "registro" && (
-        <Registro onRegister={handleRegister} mostrarLogin={irLogin} />
-      )}
+    <div>
+      {pantalla === "login" && <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />}
+      {pantalla === "registro" && <Registro mostrarLogin={irLogin} />}
 
-      {pantalla === "dashboard" && usuarioActual && (
-        <>
-          <Sidebar collapsed={!sidebarOpen} toggleSidebar={toggleSidebar} />
-
-          <div
-            className={`flex flex-col flex-1 transition-all duration-300 ${
-              sidebarOpen ? "ml-56" : "ml-0"
-            }`}
-          >
+      {pantalla !== "login" && pantalla !== "registro" && usuarioActual && (
+        <div style={styles.dashboardWrapper}>
+          <Sidebar
+            collapsed={!sidebarOpen}
+            toggleSidebar={toggleSidebar}
+            setPantalla={(pant) => {
+              switch (pant.toLowerCase()) {
+                case "inicio": irInicio(); break;
+                case "dashboard": irDashboard(); break;
+                case "usuarios": irUsuarios(); break;
+                case "perros": irPerros(); break;
+                case "gatos": irGatos(); break;
+              }
+            }}
+          />
+          <div style={{ ...styles.mainSection, paddingLeft: sidebarOpen ? "220px" : "1cm" }}>
             <Navbar toggleSidebar={toggleSidebar} usuario={usuarioActual} />
-
-            <main className="flex-1 p-4 md:p-6 bg-teal-50 overflow-auto">
-              <div
-                className="bg-white rounded-2xl shadow-xl p-6 mx-auto w-full"
-                style={{
-                  maxWidth: "95%",
-                  marginTop: "80px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                {/* Sección de título + botón */}
-                <div className="flex flex-col md:flex-row justify-between items-center w-full mb-6 gap-4">
-                  <h1 className="text-3xl font-bold text-teal-200 text-center md:text-left flex-1">
-                    🐾 Registro de Usuarios
-                  </h1>
-
-                  {/* Botón Crear usuario moderno */}
-                  <button
-                    className="flex items-center justify-center md:justify-between gap-2 bg-teal-500 hover:bg-teal-600 text-white font-semibold px-4 py-2 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg"
-                    onClick={() => setMostrarModal(true)}
-                  >
-                    <span className="hidden md:inline">Crear</span>
-                    <span className="text-2xl"></span>
-                  </button>
+            <main style={styles.content}>
+              {pantalla === "inicio" && <Inicio />}
+              {pantalla === "usuarios" && (
+                <div style={styles.bandejaContainer}>
+                  <div style={styles.bandejaHeader}>
+                    <h1 style={styles.titulo}>🐾 Registro de Usuarios</h1>
+                    <div style={styles.accionesHeader}>
+                      <div style={styles.accionesIzquierda}>
+                        <button style={styles.btnCSV} onClick={exportCSV}>CSV</button>
+                        <button style={styles.btnExcel} onClick={exportExcel}>Excel</button>
+                        <button style={styles.btnPDF} onClick={exportPDF}>PDF</button>
+                        <label>
+                          Mostrar:
+                          <select
+                            style={styles.selectMostrar}
+                            value={mostrar}
+                            onChange={(e) => setMostrar(Number(e.target.value))}
+                          >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={-1}>Todos</option>
+                          </select>
+                        </label>
+                      </div>
+                      <div style={styles.accionesDerecha}>
+                        <input
+                          type="text"
+                          style={styles.inputBuscar}
+                          placeholder="Buscar..."
+                          value={buscar}
+                          onChange={(e) => setBuscar(e.target.value)}
+                        />
+                        {usuarioActual.rol === "administrador" && (
+                          <button
+                            style={styles.btnCrear}
+                            onClick={() => setMostrarModal(true)}
+                          >
+                            ＋
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <BandejaUsuarios
+                      usuarios={usuariosFiltrados}
+                      onEdit={handleEditar}
+                      onEliminar={handleEliminar}
+                      sidebarWidth={sidebarOpen ? 220 : 0}
+                      rolActual={(usuarioActual?.rol as "usuario" | "administrador") ?? "usuario"} 
+                    />
+                  </div>
                 </div>
-
-                {/* Tabla de usuarios */}
-                <div className="w-full overflow-x-auto">
-                  <BandejaUsuarios
-                    usuarios={usuarios}
-                    onEdit={handleEditar}
-                    onEliminar={handleEliminar}
-                    sidebarWidth={sidebarOpen ? 220 : 0}
-                  />
-                </div>
-              </div>
+              )}
+              {pantalla === "perros" && <Perros />}
+              {pantalla === "gatos" && <Gatos />}
             </main>
-          </div>
 
-          {mostrarModal && (
-            <ModalUsuario
-              usuario={usuarioEditar}
-              onClose={() => {
-                setMostrarModal(false);
-                setUsuarioEditar(null);
-              }}
-              onSave={handleGuardar}
-            />
-          )}
-        </>
+            {mostrarModal && usuarioActual.rol === "administrador" && (
+              <ModalUsuario
+                usuario={usuarioEditar}
+                onClose={() => {
+                  setMostrarModal(false);
+                  setUsuarioEditar(null);
+                }}
+                onSave={handleGuardar}
+              />
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

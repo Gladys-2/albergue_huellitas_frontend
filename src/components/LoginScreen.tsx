@@ -18,10 +18,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) =
 
   return (
     <div style={wrapperStyle}>
-      {/* lado izquierdo imagen */}
+      {/* el lado izquierdo es la imagen */}
       <div style={leftSideStyle}></div>
 
-      {/* lado derecho login*/}
+      {/* el lado derecho es el login*/}
       <div style={rightSideStyle}>
         <div style={glassContainer}>
           <h2 style={titleStyle}>Bienvenido a Huellitas</h2>
@@ -72,8 +72,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) =
     </div>
   );
 };
-
-/* ==== COMPONENTE INPUT ==== */
 const InputIcon: React.FC<{
   icon: React.ReactNode;
   placeholder: string;

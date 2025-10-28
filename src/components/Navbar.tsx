@@ -1,7 +1,7 @@
 import React from "react";
 import { FaUserCircle, FaBell, FaQuestionCircle } from "react-icons/fa";
 import { HiOutlineMenu } from "react-icons/hi";
-import type { Usuario } from "../types";
+import type { Usuario } from "../types/types";
 
 interface NavbarProps {
   usuario?: Usuario;
@@ -69,7 +69,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: 8,
           flexShrink: 0,
           maxWidth: 200,
         }}
@@ -77,13 +77,13 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         {usuario && (
           <span
             style={{
-              fontSize: 12,
+              fontSize: 9,
               fontWeight: 200,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
               padding: "14px 9px",
-              borderRadius: 6,
+              borderRadius: 90,
               background: usuario.rol === "administrador" ? "#06dcb1ff" : "rgba(0, 255, 145, 1)",
               color: "#000",
               transition: "all 0.3s ease",
@@ -96,7 +96,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         {[FaQuestionCircle, FaBell, FaUserCircle].map((Icon, idx) => (
           <Icon
             key={idx}
-            size={20}
+            size={28}
             style={{
               cursor: "pointer",
               padding: 4,

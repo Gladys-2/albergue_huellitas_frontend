@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import type { Usuario } from "../types";
+import type { Usuario } from "../types/types";
 import "../App.css";
 
 interface ModalProps {
   usuario: Usuario | null;
   onClose: () => void;
-  onSave: (usuario: Omit<Usuario, "id">) => void;
+  onSave: (usuario: Usuario) => void;
 }
 
 const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
@@ -22,16 +22,18 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
 
   useEffect(() => {
     if (usuario) {
-      setNombre(usuario.nombre || "");
-      setApellidoPaterno(usuario.apellido_paterno || "");
-      setApellidoMaterno(usuario.apellido_materno || "");
-      setCedulaIdentidad(usuario.cedula_identidad || "");
-      setTelefono(usuario.telefono || "");
-      setCorreoElectronico(usuario.correo_electronico || "");
-      setContrasena(usuario.contrasena || "");
-      setRol(usuario.rol || "usuario");
-      setGenero(usuario.genero || "O");
-      setEstado(usuario.estado || "Activo");
+      setNombre(usuario.nombre ?? "");
+      setApellidoPaterno(usuario.apellido_paterno ?? "");
+      setApellidoMaterno(usuario.apellido_materno ?? "");
+      setCedulaIdentidad(usuario.cedula_identidad ?? "");
+      setTelefono(usuario.telefono ?? "");
+      setCorreoElectronico(usuario.correo_electronico ?? "");
+      setContrasena(usuario.contrasena ?? "");
+
+      // 🔹 Corregido: casting para que TS acepte los valores por defecto
+      setRol((usuario.rol ?? "usuario") as "usuario" | "administrador");
+      setGenero((usuario.genero ?? "O") as "M" | "F" | "O");
+      setEstado((usuario.estado ?? "Activo") as "Activo" | "Inactivo");
     } else {
       setNombre("");
       setApellidoPaterno("");
@@ -53,6 +55,7 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
     }
 
     onSave({
+      id: usuario?.id,
       nombre,
       apellido_paterno: apellidoPaterno,
       apellido_materno: apellidoMaterno,
@@ -80,7 +83,6 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
         justifyContent: "center",
         alignItems: "center",
         zIndex: 500,
-        animation: "fadeIn 0.3s ease-in-out",
       }}
     >
       <div
@@ -92,8 +94,6 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
           width: "100%",
           maxWidth: "500px",
           boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-          transform: "translateY(0)",
-          animation: "slideIn 0.3s ease-out",
         }}
       >
         <h2
@@ -114,37 +114,57 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
             type="text"
             placeholder="Nombre"
             value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setNombre(value);
+            }}
             style={inputStyle}
           />
+
           <input
             type="text"
             placeholder="Apellido Paterno"
             value={apellidoPaterno}
-            onChange={(e) => setApellidoPaterno(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setApellidoPaterno(value);
+            }}
             style={inputStyle}
           />
+
           <input
             type="text"
             placeholder="Apellido Materno"
             value={apellidoMaterno}
-            onChange={(e) => setApellidoMaterno(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setApellidoMaterno(value);
+            }}
             style={inputStyle}
           />
+
           <input
             type="text"
             placeholder="Cédula de Identidad"
             value={cedulaIdentidad}
-            onChange={(e) => setCedulaIdentidad(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[0-9]*$/.test(value)) setCedulaIdentidad(value);
+            }}
             style={inputStyle}
           />
+
           <input
             type="text"
             placeholder="Teléfono"
             value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^[0-9]*$/.test(value)) setTelefono(value);
+            }}
             style={inputStyle}
           />
+
           <input
             type="email"
             placeholder="Correo Electrónico"
@@ -152,6 +172,7 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
             onChange={(e) => setCorreoElectronico(e.target.value)}
             style={inputStyle}
           />
+
           <input
             type="password"
             placeholder="Contraseña"
@@ -160,18 +181,30 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
             style={inputStyle}
           />
 
-          <select value={rol} onChange={(e) => setRol(e.target.value as "usuario" | "administrador")} style={selectStyle}>
+          <select
+            value={rol}
+            onChange={(e) => setRol(e.target.value as "usuario" | "administrador")}
+            style={selectStyle}
+          >
             <option value="usuario">Usuario</option>
             <option value="administrador">Administrador</option>
           </select>
 
-          <select value={genero} onChange={(e) => setGenero(e.target.value as "M" | "F" | "O")} style={selectStyle}>
+          <select
+            value={genero}
+            onChange={(e) => setGenero(e.target.value as "M" | "F" | "O")}
+            style={selectStyle}
+          >
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
             <option value="O">Otro</option>
           </select>
 
-          <select value={estado} onChange={(e) => setEstado(e.target.value as "Activo" | "Inactivo")} style={selectStyle}>
+          <select
+            value={estado}
+            onChange={(e) => setEstado(e.target.value as "Activo" | "Inactivo")}
+            style={selectStyle}
+          >
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
@@ -186,13 +219,11 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
   );
 };
 
-// Estilos reutilizables
 const inputStyle: React.CSSProperties = {
   padding: "10px 12px",
   borderRadius: 10,
   border: "1px solid #ccc",
   outline: "none",
-  transition: "0.2s",
   fontSize: 14,
   width: "100%",
 };
@@ -210,7 +241,6 @@ const buttonGuardar: React.CSSProperties = {
   color: "#fff",
   fontWeight: "bold",
   cursor: "pointer",
-  transition: "0.3s",
 };
 
 const buttonCancelar: React.CSSProperties = {
@@ -221,7 +251,6 @@ const buttonCancelar: React.CSSProperties = {
   color: "#333",
   fontWeight: "bold",
   cursor: "pointer",
-  transition: "0.3s",
 };
 
 export default ModalUsuario;

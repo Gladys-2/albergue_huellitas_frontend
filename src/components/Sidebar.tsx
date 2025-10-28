@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaDog, FaCat, FaHeart, FaUsers, FaChartBar, FaCog, FaSignOutAlt, FaBars } from "react-icons/fa";
+import {
+  FaHome,
+  FaDog,
+  FaCat,
+  FaHeart,
+  FaUsers,
+  FaChartBar,
+  FaCog,
+  FaSignOutAlt,
+  FaBars,
+} from "react-icons/fa";
 
 interface SidebarProps {
   collapsed: boolean;
   toggleSidebar: () => void;
+  setPantalla: (pantalla: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
+const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar, setPantalla }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Inicio");
@@ -24,11 +35,12 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
 
   const handleLinkClick = (label: string) => {
     setActiveLink(label);
+    setPantalla(label); // Cambia pantalla según label
     if (isMobile) setMobileOpen(false);
   };
 
   const links = [
-    { icon: <FaHome />, label: "Inicio" },
+    { icon: <FaHome />, label: "inicio" },
     { icon: <FaUsers />, label: "Usuarios" },
     { icon: <FaDog />, label: "Perros" },
     { icon: <FaCat />, label: "Gatos" },
@@ -93,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
               icon={icon}
               label={label}
               collapsed={collapsed}
-              active={activeLink === label}
+              active={activeLink.toLowerCase() === label.toLowerCase()}
               color={color || "#333"}
               onClick={() => handleLinkClick(label)}
             />
@@ -128,7 +140,14 @@ interface SidebarLinkProps {
   onClick?: () => void;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({ icon, label, collapsed, active = false, color = "#333", onClick }) => (
+const SidebarLink: React.FC<SidebarLinkProps> = ({
+  icon,
+  label,
+  collapsed,
+  active = false,
+  color = "#333",
+  onClick,
+}) => (
   <a
     href="#"
     onClick={onClick}
@@ -148,11 +167,15 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ icon, label, collapsed, activ
       cursor: "pointer",
     }}
     onMouseOver={(e) => {
-      e.currentTarget.style.background = active ? "linear-gradient(90deg,#137497,#1abc9c)" : "rgba(19,116,151,0.08)";
+      e.currentTarget.style.background = active
+        ? "linear-gradient(90deg,#137497,#1abc9c)"
+        : "rgba(19,116,151,0.08)";
       e.currentTarget.style.color = "#137497";
     }}
     onMouseOut={(e) => {
-      e.currentTarget.style.background = active ? "linear-gradient(90deg,#137497,#1abc9c)" : "transparent";
+      e.currentTarget.style.background = active
+        ? "linear-gradient(90deg,#137497,#1abc9c)"
+        : "transparent";
       e.currentTarget.style.color = active ? "#fff" : color;
     }}
   >
