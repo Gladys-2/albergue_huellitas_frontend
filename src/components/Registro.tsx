@@ -343,7 +343,7 @@ const buttonStyle: React.CSSProperties = {
   boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
 };
 const socialTextStyle: React.CSSProperties = {
-  color: "#79a4dfff",
+  color: "#c1af0bff",
   margin: "15px 0 10px",
   fontSize: 14,
 };
@@ -353,7 +353,7 @@ const socialContainerStyle: React.CSSProperties = {
   gap: 35,
   marginBottom: 20,
 };
-const footerTextStyle: React.CSSProperties = { color: "#e7e970bc", fontSize: 14 };
+const footerTextStyle: React.CSSProperties = { color: "#e1e43cda", fontSize: 14 };
 const linkStyle: React.CSSProperties = {
   background: "none",
   border: "none",
@@ -374,7 +374,7 @@ const phoneGroupStyle: React.CSSProperties = {
   gap: 5,
 };
 const prefixButton: React.CSSProperties = {
-  backgroundColor: "#a48d0cff",
+  backgroundColor: "#a5a510ff",
   color: "white",
   border: "none",
   borderRadius: 8,

@@ -21,7 +21,7 @@ const Inicio: React.FC = () => {
 
         /* HERO */
         .hero-section {
-            height: 80vh;
+            height: 90vh;
             background-image: url('https://placedog.net/1200/600?id=5');
             background-size: cover;
             background-position: center;
@@ -31,7 +31,7 @@ const Inicio: React.FC = () => {
             align-items: center;
             color: white;
             text-align: center;
-            padding: 0 20px;
+            padding: 0 10px;
         }
 
         .hero-section h1 {
@@ -42,26 +42,26 @@ const Inicio: React.FC = () => {
 
         .hero-section p {
             font-size: 1.2rem;
-            max-width: 600px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            max-width: 500px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
         }
 
         /* CARRUSEL */
         .carousel-section {
             background-color: #fef6e4;
-            padding: 50px 0;
+            padding: 20px 0;
         }
 
         .carousel-container {
-            width: 90%;
+            width: 100%;
             overflow: hidden;
-            margin: 0 auto;
+            margin: 8 auto;
         }
 
         .carousel-track {
             display: flex;
-            width: 200%;
-            animation: slideShow 20s linear infinite;
+            width: 300%;
+            animation: slideShow 15s linear infinite;
         }
 
         .carousel-track:hover {
@@ -71,7 +71,7 @@ const Inicio: React.FC = () => {
         .carousel-item {
             flex: 0 0 25%;
             margin: 0 10px;
-            border-radius: 12px;
+            border-radius: 18px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             background-color: white;
@@ -79,7 +79,7 @@ const Inicio: React.FC = () => {
 
         .carousel-item img {
             width: 100%;
-            height: 200px;
+            height: 600px;
             object-fit: cover;
         }
 
@@ -103,7 +103,7 @@ const Inicio: React.FC = () => {
         .info-section {
             text-align: center;
             padding: 50px 20px;
-            background-color: #fff;
+            background-color: #d69721ff;
         }
 
         .info-section h2 {
@@ -125,13 +125,13 @@ const Inicio: React.FC = () => {
 
             <div className="container">
 
-                {/* HERO */}
+                {/* Bienvenida..*/}
                 <header className="hero-section">
                     <h1>Bienvenido a Huellitas</h1>
                     <p>Un lugar donde los perros encuentran amor, cuidado y un hogar para siempre.</p>
                 </header>
 
-                {/* CARRUSEL DE PERROS */}
+                {/* carrusel de los perros */}
                 <section className="carousel-section">
                     <div className="carousel-container">
                         <div className="carousel-track">
@@ -146,7 +146,7 @@ const Inicio: React.FC = () => {
                     </div>
                 </section>
 
-                {/* INFORMACIÓN DEL ALBERGUE */}
+                {/*inf. del albergue*/}
                 <section className="info-section">
                     <h2>Acerca de Huellitas</h2>
                     <p>

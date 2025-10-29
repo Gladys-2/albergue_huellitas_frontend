@@ -12,7 +12,7 @@ import Perros from "./components/pages/perros";
 import Gatos from "./components/pages/gatos";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 type Pantalla = "login" | "registro" | "dashboard" | "inicio" | "usuarios" | "perros" | "gatos";
 
@@ -148,7 +148,7 @@ const App: React.FC = () => {
       u.estado ?? "Activo",
     ]);
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       head,
       body,
       startY: 20,
@@ -160,31 +160,38 @@ const App: React.FC = () => {
   };
 
   const usuariosFiltrados = usuarios
-    .filter(
-      (u) =>
-        (u.nombre ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
-        (u.apellido_paterno ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
-        (u.apellido_materno ?? "").toLowerCase().includes(buscar.toLowerCase()) ||
-        (u.correo_electronico ?? "").toLowerCase().includes(buscar.toLowerCase())
-    )
-    .slice(0, mostrar > 0 ? mostrar : usuarios.length);
+  .filter((u) => {
+    const textoBuscar = buscar.toLowerCase().trim(); 
+    const nombre = (u.nombre ?? "").toLowerCase();
+    const apellidoP = (u.apellido_paterno ?? "").toLowerCase();
+    const apellidoM = (u.apellido_materno ?? "").toLowerCase();
+    const correo = (u.correo_electronico ?? "").toLowerCase();
+
+    return (
+      nombre.startsWith(textoBuscar) ||
+      apellidoP.startsWith(textoBuscar) ||
+      apellidoM.startsWith(textoBuscar) ||
+      correo.startsWith(textoBuscar)
+    );
+  })
+  .slice(0, mostrar > 0 ? mostrar : usuarios.length);
 
   const styles: { [key: string]: CSSProperties } = {
-    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #81e6d9, #ffffff, #81e6d9)" },
+    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffffff, #ffffff, #ffffffff)" },
     mainSection: { flex: 1, transition: "padding-left 0.3s" },
     content: { padding: "1rem", overflowY: "auto" },
-    bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", width: "100%" },
+    bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", width: "%", maxWidth: "11000px", margin: "0 auto", overflow: "hidden" },
     bandejaHeader: { display: "flex", flexDirection: "column", gap: "1rem" },
-    titulo: { fontSize: "2rem", color: "#319795", textAlign: "center", fontWeight: "bold" },
-    accionesHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" },
+    titulo: { fontSize: "2rem", color: "#897511ff", textAlign: "center", fontWeight: "bold" },
+    accionesHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" },
     accionesIzquierda: { display: "flex", alignItems: "center", gap: "0.5rem" },
-    accionesDerecha: { display: "flex", alignItems: "center", gap: "0.5rem" },
+    accionesDerecha: { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.5rem" },
     selectMostrar: { marginLeft: "0.25rem", padding: "0.25rem", borderRadius: "0.25rem" },
     btnCSV: { backgroundColor: "#63b3ed", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
     btnExcel: { backgroundColor: "#38a169", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
     btnPDF: { backgroundColor: "#e53e3e", color: "white", padding: "0.4rem 0.8rem", border: "none", borderRadius: "0.5rem", cursor: "pointer" },
     inputBuscar: { padding: "0.4rem 0.6rem", border: "1px solid #ccc", borderRadius: "0.25rem" },
-    btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer", marginLeft: "0.5rem" },
+    btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer" },
   };
 
   return (
@@ -214,12 +221,12 @@ const App: React.FC = () => {
               {pantalla === "usuarios" && (
                 <div style={styles.bandejaContainer}>
                   <div style={styles.bandejaHeader}>
-                    <h1 style={styles.titulo}>🐾 Registro de Usuarios</h1>
+                    <h1 style={styles.titulo}>Registro de Usuarios</h1>
                     <div style={styles.accionesHeader}>
                       <div style={styles.accionesIzquierda}>
                         <button style={styles.btnCSV} onClick={exportCSV}>CSV</button>
                         <button style={styles.btnExcel} onClick={exportExcel}>Excel</button>
-                        <button style={styles.btnPDF} onClick={exportPDF}>PDF</button>
+                        <button style={styles.btnPDF} onClick={exportPDF}>Pdf</button>
                         <label>
                           Mostrar:
                           <select
@@ -244,12 +251,7 @@ const App: React.FC = () => {
                           onChange={(e) => setBuscar(e.target.value)}
                         />
                         {usuarioActual.rol === "administrador" && (
-                          <button
-                            style={styles.btnCrear}
-                            onClick={() => setMostrarModal(true)}
-                          >
-                            ＋
-                          </button>
+                          <button style={styles.btnCrear} onClick={() => setMostrarModal(true)}>＋</button>
                         )}
                       </div>
                     </div>
@@ -257,8 +259,8 @@ const App: React.FC = () => {
                       usuarios={usuariosFiltrados}
                       onEdit={handleEditar}
                       onEliminar={handleEliminar}
-                      sidebarWidth={sidebarOpen ? 220 : 0}
-                      rolActual={(usuarioActual?.rol as "usuario" | "administrador") ?? "usuario"} 
+                      sidebarWidth={sidebarOpen ? 0 : 0}
+                      rolActual={(usuarioActual?.rol as "usuario" | "administrador") ?? "usuario"}
                     />
                   </div>
                 </div>

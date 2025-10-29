@@ -183,7 +183,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const socialTextStyle: React.CSSProperties = {
-  color: "#79a4dfff",
+  color: "#bdc31cff",
   margin: "15px 0 10px",
   fontSize: 14,
 };
@@ -196,7 +196,7 @@ const socialContainerStyle: React.CSSProperties = {
 };
 
 const footerTextStyle: React.CSSProperties = {
-  color: "#70afe9ff",
+  color: "#c3bb18ff",
   fontSize: 14,
 };
 

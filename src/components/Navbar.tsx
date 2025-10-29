@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
-        background: "linear-gradient(90deg, #037288ff, #00ffcc95)",
+        background: "linear-gradient(90deg, #936e09ff, #d6e40ee3)",
         height: 60,
         padding: "0 16px",
         position: "fixed",
@@ -61,7 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
             color: "#000",
           }}
         >
-          Huellitas 🐾
+          HUELLITAS
         </h1>
       </div>
 
@@ -84,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
               textOverflow: "ellipsis",
               padding: "14px 9px",
               borderRadius: 90,
-              background: usuario.rol === "administrador" ? "#06dcb1ff" : "rgba(0, 255, 145, 1)",
+              background: usuario.rol === "administrador" ? "#98dc06ff" : "rgba(0, 255, 145, 1)",
               color: "#000",
               transition: "all 0.3s ease",
             }}
@@ -101,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
               cursor: "pointer",
               padding: 4,
               borderRadius: 6,
-              color: "#0b4f76ff",
+              color: "#000000ff",
               transition: "all 0.50s ease",
             }}
           />

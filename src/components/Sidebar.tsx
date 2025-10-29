@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar, setPantalla
 
   const handleLinkClick = (label: string) => {
     setActiveLink(label);
-    setPantalla(label); // Cambia pantalla según label
+    setPantalla(label); 
     if (isMobile) setMobileOpen(false);
   };
 
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar, setPantalla
             left: 20,
             zIndex: 200,
             fontSize: 24,
-            background: "linear-gradient(135deg, #137497, #1abc9c)",
+            background: "linear-gradient(135deg, #f8ce11ff, #f5d715ff)",
             border: "none",
             cursor: "pointer",
             borderRadius: "8px",
@@ -161,16 +161,16 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
       fontSize: 16,
       padding: "12px 14px",
       borderRadius: "12px",
-      transition: "all 0.3s ease",
+      transition: "all 0.20s ease",
       background: active ? "linear-gradient(90deg,#137497,#1abc9c)" : "transparent",
-      boxShadow: active ? "0 4px 12px rgba(19,116,151,0.3)" : "none",
+      boxShadow: active ? "0 4px 12px rgba(151, 100, 19, 0.3)" : "none",
       cursor: "pointer",
     }}
     onMouseOver={(e) => {
       e.currentTarget.style.background = active
         ? "linear-gradient(90deg,#137497,#1abc9c)"
         : "rgba(19,116,151,0.08)";
-      e.currentTarget.style.color = "#137497";
+      e.currentTarget.style.color = "#8b7b12ff";
     }}
     onMouseOut={(e) => {
       e.currentTarget.style.background = active

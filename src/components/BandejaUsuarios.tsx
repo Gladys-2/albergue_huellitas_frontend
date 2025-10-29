@@ -11,7 +11,7 @@ interface BandejaUsuariosProps {
 }
 
 const roleColors: { [key in "usuario" | "administrador" | "voluntario" | "adoptante" | "donante"]?: string } = {
-  administrador: "#116888",
+  administrador: "#020c0fff",
   voluntario: "#2e86c1",
   adoptante: "#f39c12",
   donante: "#27ae60",
@@ -21,7 +21,7 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
   usuarios,
   onEdit,
   onEliminar,
-  sidebarWidth = 220,
+  sidebarWidth = 0,
   rolActual,
 }) => {
   const esAdmin = rolActual === "administrador";
@@ -33,10 +33,12 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
         padding: "20px",
         width: `calc(100% - ${sidebarWidth}px)`,
         marginLeft: sidebarWidth,
-        marginTop: 70,
-        height: `calc(100vh - 70px)`,
-        overflowX: "auto",
+        marginTop: 60,
+        height: `calc(100vh - 60px)`,
+        overflowX: "hidden",
         overflowY: "auto",
+        boxSizing: "border-box",
+        transition: "all 0.3s ease",
       }}
     >
       <table style={tableStyle}>
@@ -54,7 +56,7 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
         </thead>
         <tbody>
           {usuarios.map((u, idx) => {
-            // Forzamos valores por defecto y tipos correctos
+            
             const idUsuario: number = u.id as number;
             const rolUsuario: "usuario" | "administrador" = (u.rol ?? "usuario") as "usuario" | "administrador";
             const estadoUsuario: "Activo" | "Inactivo" = (u.estado ?? "Activo") as "Activo" | "Inactivo";
@@ -105,10 +107,9 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
   );
 };
 
-// estilos
-const tableStyle: React.CSSProperties = { width: "100%", minWidth: 900, borderCollapse: "separate", borderSpacing: 0, boxShadow: "0 6px 20px rgba(0,0,0,0.1)", borderRadius: 12, backgroundColor: "#fff" };
-const theadTrStyle: React.CSSProperties = { backgroundColor: "#116888", color: "#fff", textAlign: "center", height: 50 };
-const thStyle: React.CSSProperties = { padding: "12px", borderBottom: "2px solid #0f6473", fontWeight: "bold", textAlign: "center" };
+const tableStyle: React.CSSProperties = { width: "95%",margin: "0 auto",borderCollapse: "separate",borderSpacing: 0,boxShadow: "0 6px 20px rgba(0,0,0,0.1)",borderRadius: 12,backgroundColor: "#fff",};
+const theadTrStyle: React.CSSProperties = { backgroundColor: "#d5c42cff", color: "#fff", textAlign: "center", height: 50 };
+const thStyle: React.CSSProperties = { padding: "12px", borderBottom: "2px solid #73610fff", fontWeight: "bold", textAlign: "center" };
 const tdStyle: React.CSSProperties = { padding: "12px", textAlign: "center", verticalAlign: "middle" };
 const tdActionsStyle: React.CSSProperties = { ...tdStyle, display: "flex", justifyContent: "center", gap: 10 };
 const trEvenStyle: React.CSSProperties = { backgroundColor: "#f9f9f9" };

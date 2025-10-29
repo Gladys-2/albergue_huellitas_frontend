@@ -29,8 +29,6 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       setTelefono(usuario.telefono ?? "");
       setCorreoElectronico(usuario.correo_electronico ?? "");
       setContrasena(usuario.contrasena ?? "");
-
-      // 🔹 Corregido: casting para que TS acepte los valores por defecto
       setRol((usuario.rol ?? "usuario") as "usuario" | "administrador");
       setGenero((usuario.genero ?? "O") as "M" | "F" | "O");
       setEstado((usuario.estado ?? "Activo") as "Activo" | "Inactivo");
