@@ -124,8 +124,8 @@ const glassContainer: React.CSSProperties = {
   borderRadius: 30,
   padding: "35px 30px",
   boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
-  border: "1px solid rgba(27, 199, 185, 0.96)",
-  color: "#0ca4a1ff",
+  border: "3px solid rgba(182, 199, 27, 0.96)",
+  color: "#a4800cff",
 };
 
 const titleStyle: React.CSSProperties = {
@@ -133,7 +133,7 @@ const titleStyle: React.CSSProperties = {
   fontWeight: 700,
   marginBottom: 8,
   letterSpacing: 0.8,
-  color: "#0e9fa4ff",
+  color: "#a4810eff",
 };
 
 const subtitleStyle: React.CSSProperties = {
@@ -172,7 +172,7 @@ const buttonStyle: React.CSSProperties = {
   padding: "11px 0",
   borderRadius: 10,
   border: "none",
-  background: "linear-gradient(90deg, #161616ff, #187ca0ff)",
+  background: "linear-gradient(90deg, #161616ff, #c5c026ff)",
   color: "#ffffffff",
   fontWeight: 600,
   fontSize: 16,
@@ -222,7 +222,7 @@ button:hover {
   box-shadow: 0 6px 20px rgba(28, 26, 26, 0.5);
 }
 input:focus {
-  border-color: #74ffceff !important;
+  border-color: #a7a40fff !important;
 }
 `;
 document.head.appendChild(style);
