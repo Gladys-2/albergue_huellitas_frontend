@@ -264,9 +264,6 @@ const InputIcon: React.FC<{
   </div>
 );
 
-// ============================
-// Estilos (los mismos que tenías)
-// ============================
 const wrapperStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
@@ -282,14 +279,14 @@ const glassContainer: React.CSSProperties = {
   borderRadius: 30,
   padding: "30px 25px",
   boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
-  border: "3px solid rgba(27, 199, 185, 0.96)",
-  color: "#0ca4a1ff",
+  border: "3px solid rgba(193, 172, 20, 0.96)",
+  color: "#a4920cff",
 };
 const titleStyle: React.CSSProperties = {
   fontSize: 24,
   fontWeight: 900,
   marginBottom: 8,
-  color: "#0e9fa4ff",
+  color: "#9ca40eff",
 };
 const subtitleStyle: React.CSSProperties = {
   fontSize: 15,
@@ -336,7 +333,7 @@ const buttonStyle: React.CSSProperties = {
   padding: "10px 0",
   borderRadius: 10,
   border: "none",
-  background: "linear-gradient(90deg, #161616ff, #187ca0ff)",
+  background: "linear-gradient(90deg, #161616ff, #b8c316c4)",
   color: "#fff",
   fontWeight: 600,
   fontSize: 16,
@@ -356,7 +353,7 @@ const socialContainerStyle: React.CSSProperties = {
   gap: 35,
   marginBottom: 20,
 };
-const footerTextStyle: React.CSSProperties = { color: "#70afe9ff", fontSize: 14 };
+const footerTextStyle: React.CSSProperties = { color: "#e7e970bc", fontSize: 14 };
 const linkStyle: React.CSSProperties = {
   background: "none",
   border: "none",
@@ -377,7 +374,7 @@ const phoneGroupStyle: React.CSSProperties = {
   gap: 5,
 };
 const prefixButton: React.CSSProperties = {
-  backgroundColor: "#0ca4a1ff",
+  backgroundColor: "#a48d0cff",
   color: "white",
   border: "none",
   borderRadius: 8,
