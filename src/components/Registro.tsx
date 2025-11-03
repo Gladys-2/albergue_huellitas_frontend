@@ -28,12 +28,10 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
 
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (contrasena !== confirmarContrasena) {
       alert("Las contraseñas no coinciden.");
       return;
     }
-
     if (!genero) {
       alert("Selecciona un género.");
       return;
@@ -58,9 +56,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
     try {
       const respuesta = await fetch("http://localhost:5000/api/usuarios", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevoUsuario),
       });
 
@@ -80,165 +76,161 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
     } catch (error: any) {
       console.error(error);
       alert(
-        `Error al registrar usuario: ${
-          error?.message || "Revise los datos ingresados"
-        }`
+        `Error al registrar usuario: ${error?.message || "Revise los datos ingresados"}`
       );
     }
   };
 
-  // Validaciones de inputs
-  const handleNombreChange = (value: string) => {
-    if (/^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]{0,50}$/.test(value)) setNombre(value);
-  };
-  const handleApellidoPChange = (value: string) => {
-    if (/^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]{0,50}$/.test(value))
-      setApellidoPaterno(value);
-  };
-  const handleApellidoMChange = (value: string) => {
-    if (/^[A-ZÁÉÍÓÚÑa-záéíóúñ\s]{0,50}$/.test(value))
-      setApellidoMaterno(value);
-  };
-  const handleCedulaChange = (value: string) => {
-    if (/^\d{0,10}$/.test(value)) setCedulaIdentidad(value);
-  };
-  const handleTelefonoChange = (value: string) => {
-    if (/^\d{0,8}$/.test(value)) setTelefono(value);
-  };
-
   return (
     <div style={wrapperStyle}>
-      <div style={rightSideStyle}>
-        <div style={glassContainer}>
-          <h2 style={{ ...titleStyle, textAlign: "center" }}>
-            <FaUserShield style={{ marginRight: 9 }} />
-            Registro de Usuario
-          </h2>
-          <p style={{ ...subtitleStyle, textAlign: "center" }}>
-            Bienvenido a Huellitas
-          </p>
+      {/* --- ESTILO PLACEHOLDER Y MEDIA QUERIES --- */}
+      <style>
+        {`
+          /* Cambiar color de los placeholders */
+          .input-placeholder::placeholder {
+            color: #ffffffff; 
+            opacity: 1;     
+          }
 
-          <form onSubmit={handleRegistro} style={formStyle}>
-            <div style={filaStyle}>
-              <InputIcon
-                icon={<FaUser />}
-                placeholder="Nombre"
-                value={nombre}
-                onChange={handleNombreChange}
-              />
-              <InputIcon
-                icon={<FaUser />}
-                placeholder="Apellido Paterno"
-                value={apellidoPaterno}
-                onChange={handleApellidoPChange}
-              />
-              <InputIcon
-                icon={<FaUser />}
-                placeholder="Apellido Materno"
-                value={apellidoMaterno}
-                onChange={handleApellidoMChange}
-              />
-            </div>
+          /* Responsivo: apilar campos en móviles */
+          @media (max-width: 768px) {
+            .fila {
+              flex-direction: column !important;
+              align-items: stretch !important;
+            }
+          }
+        `}
+      </style>
 
-            <div style={filaStyle}>
-              <InputIcon
-                icon={<FaIdCard />}
-                placeholder="Cédula de Identidad"
-                value={cedulaIdentidad}
-                onChange={handleCedulaChange}
-              />
-              <div style={phoneGroupStyle}>
-                <button type="button" style={prefixButton}>
-                  +591
-                </button>
-                <MdPhoneIphone style={{ fontSize: 20, color: "#000" }} />
-                <input
-                  type="text"
-                  placeholder="Número (8 dígitos)"
-                  value={telefono}
-                  onChange={(e) => handleTelefonoChange(e.target.value)}
-                  style={phoneInput}
-                  required
-                />
-              </div>
-              <InputIcon
-                icon={<FaEnvelope />}
-                placeholder="Correo Electrónico"
-                value={correoElectronico}
-                onChange={setCorreoElectronico}
-                type="email"
-              />
-            </div>
+      <div style={glassContainer}>
+        <h2 style={titleStyle}>
+          <FaUserShield style={{ marginRight: 8 }} />
+          Registro de Usuario
+        </h2>
+        <p style={subtitleStyle}>Bienvenido a Huellitas</p>
 
-            <div style={filaStyle}>
-              <InputIcon
-                icon={<FaLock />}
-                placeholder="Contraseña"
-                value={contrasena}
-                onChange={setContrasena}
-                type="password"
-              />
-              <InputIcon
-                icon={<FaLock />}
-                placeholder="Confirmar Contraseña"
-                value={confirmarContrasena}
-                onChange={setConfirmarContrasena}
-                type="password"
-              />
-              <select
-                value={genero}
-                onChange={(e) => setGenero(e.target.value)}
-                style={selectStyle}
-                required
-              >
-                <option value="">Selecciona género</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
-                <option value="Otro">Otro</option>
-              </select>
-            </div>
-
-            <button type="submit" style={buttonStyle}>
-              Crear cuenta
-            </button>
-          </form>
-
-          <p style={{ ...socialTextStyle, textAlign: "center" }}>
-            O regístrate con
-          </p>
-          <div style={socialContainerStyle}>
-            <a
-              href="https://accounts.google.com/signin"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FcGoogle style={{ fontSize: 28 }} />
-            </a>
-            <a
-              href="https://www.facebook.com/login/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#3967c1ff" }}
-            >
-              <FaFacebookF style={{ fontSize: 28 }} />
-            </a>
-            <a
-              href="https://appleid.apple.com/sign-in"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#000" }}
-            >
-              <FaApple style={{ fontSize: 28 }} />
-            </a>
+        <form onSubmit={handleRegistro} style={formStyle}>
+          {/* --- Fila de Nombre / Apellidos --- */}
+          <div style={filaStyle} className="fila">
+            <InputIcon
+              icon={<FaUser />}
+              placeholder="Nombre"
+              value={nombre}
+              onChange={setNombre}
+            />
+            <InputIcon
+              icon={<FaUser />}
+              placeholder="Apellido Paterno"
+              value={apellidoPaterno}
+              onChange={setApellidoPaterno}
+            />
+            <InputIcon
+              icon={<FaUser />}
+              placeholder="Apellido Materno"
+              value={apellidoMaterno}
+              onChange={setApellidoMaterno}
+            />
           </div>
 
-          <p style={{ ...footerTextStyle, textAlign: "center" }}>
-            ¿Ya tienes cuenta?{" "}
-            <button onClick={mostrarLogin} style={linkStyle}>
-              Inicia sesión
-            </button>
-          </p>
+          {/* --- Fila de Cédula / Teléfono / Correo corregida --- */}
+          <div style={filaStyle} className="fila">
+            <InputIcon
+              icon={<FaIdCard />}
+              placeholder="Cédula de Identidad"
+              value={cedulaIdentidad}
+              onChange={setCedulaIdentidad}
+            />
+            <div style={{ ...phoneGroupStyle, flex: 1 }}>
+              <button type="button" style={prefixButton}>
+                +591
+              </button>
+              <MdPhoneIphone style={{ fontSize: 20, color: "#000000ff" }} />
+              <input
+                type="text"
+                placeholder="Número (8 dígitos)"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                style={phoneInput}
+                className="input-placeholder"
+                required
+              />
+            </div>
+            <InputIcon
+              icon={<FaEnvelope />}
+              placeholder="Correo Electrónico"
+              value={correoElectronico}
+              onChange={setCorreoElectronico}
+              type="email"
+            />
+          </div>
+
+          {/* --- Fila Contraseña / Confirmar / Género --- */}
+          <div style={filaStyle} className="fila">
+            <InputIcon
+              icon={<FaLock />}
+              placeholder="Contraseña"
+              value={contrasena}
+              onChange={setContrasena}
+              type="password"
+            />
+            <InputIcon
+              icon={<FaLock />}
+              placeholder="Confirmar Contraseña"
+              value={confirmarContrasena}
+              onChange={setConfirmarContrasena}
+              type="password"
+            />
+            <select
+              value={genero}
+              onChange={(e) => setGenero(e.target.value)}
+              style={selectStyle}
+              required
+            >
+              <option value="">Selecciona género</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <button type="submit" style={buttonStyle}>
+            Crear cuenta
+          </button>
+        </form>
+
+        <p style={socialTextStyle}>O regístrate con</p>
+        <div style={socialContainerStyle}>
+          <a
+            href="https://accounts.google.com/signin"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FcGoogle style={{ fontSize: 28 }} />
+          </a>
+          <a
+            href="https://www.facebook.com/login/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#3967c1ff" }}
+          >
+            <FaFacebookF style={{ fontSize: 28 }} />
+          </a>
+          <a
+            href="https://appleid.apple.com/sign-in"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#000" }}
+          >
+            <FaApple style={{ fontSize: 28 }} />
+          </a>
         </div>
+
+        <p style={footerTextStyle}>
+          ¿Ya tienes cuenta?{" "}
+          <button onClick={mostrarLogin} style={linkStyle}>
+            Inicia sesión
+          </button>
+        </p>
       </div>
     </div>
   );
@@ -259,135 +251,176 @@ const InputIcon: React.FC<{
       value={value}
       onChange={(e) => onChange(e.target.value)}
       style={inputStyle}
+      className="input-placeholder"
       required
     />
   </div>
 );
 
+{/* --- Estilos --- */}
 const wrapperStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  minHeight: "90vh",
-  background: "linear-gradient(135deg, #151414ff, #000000ff, #121111ff)",
+  minHeight: "100vh",
+  width: "100vw",
   fontFamily: "Poppins, sans-serif",
-  padding: "20px",
+  backgroundImage: `url("src/assets/LOGIN.jpeg")`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  margin: 0,
+  overflow: "hidden",
 };
-const rightSideStyle: React.CSSProperties = { width: "100%", maxWidth: 900 };
+
 const glassContainer: React.CSSProperties = {
-  background: "rgba(237, 239, 240, 0.2)",
-  borderRadius: 30,
-  padding: "30px 25px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.25)",
-  border: "3px solid rgba(193, 172, 20, 0.96)",
-  color: "#a4920cff",
+  background: "rgba(92, 90, 107, 0.25)",
+  borderRadius: 10,
+  padding: "9px 15px",
+  boxShadow: "0 5px 15px rgba(0,0,0,0.25)",
+  border: "2px solid rgba(240,240,240,0.3)",
+  color: "#ffffffff",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  width: "100%",
+  maxWidth: 900,
 };
+
 const titleStyle: React.CSSProperties = {
-  fontSize: 24,
-  fontWeight: 900,
-  marginBottom: 8,
-  color: "#9ca40eff",
+  fontSize: "1.5rem",
+  fontWeight: 578,
+  marginBottom: 0,
+  color: "#fff",
+  textAlign: "center",
 };
+
 const subtitleStyle: React.CSSProperties = {
-  fontSize: 15,
-  color: "#d0d0d0",
-  marginBottom: 20,
+  fontSize: "1rem",
+  marginBottom: 16,
+  color: "#fff",
+  textAlign: "center",
 };
-const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 15 };
+
+const formStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+  width: "100%",
+};
+
 const filaStyle: React.CSSProperties = {
   display: "flex",
-  gap: 10,
+  gap: 5.50,
   flexWrap: "wrap",
   justifyContent: "center",
+  alignItems: "flex-start",
 };
+
 const inputGroup: React.CSSProperties = {
   flex: 1,
   display: "flex",
   alignItems: "center",
-  gap: 8,
-  border: "1px solid rgba(255,255,255,0.8)",
-  padding: "10px 12px",
+  gap: 10,
+  padding: "8px 10px",
   borderRadius: 10,
-  backgroundColor: "rgba(255,255,255,0.7)",
-  minWidth: 110,
+  border: "1px solid white",
+  backgroundColor: "transparent",
 };
+
 const inputStyle: React.CSSProperties = {
   width: "100%",
+  minWidth: 150,
   border: "none",
   outline: "none",
   background: "transparent",
-  fontSize: 14,
-  color: "#101111ff",
+  color: "#000000ff",
+  fontSize: "1rem",
+  padding: "5px",
 };
+
 const selectStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.9)",
-  backgroundColor: "rgba(255,255,255,0.7)",
-  color: "#101111ff",
+  padding: "12px 12px",
+  borderRadius: 12,
+  border: "1px solid white",
+  backgroundColor: "transparent",
+  color: "black",
   outline: "none",
   flex: 1,
   minWidth: 150,
+  appearance: "none",
 };
+
 const buttonStyle: React.CSSProperties = {
-  padding: "10px 0",
-  borderRadius: 10,
+  padding: "11px 0",
+  borderRadius: 12,
   border: "none",
-  background: "linear-gradient(90deg, #161616ff, #b8c316c4)",
+  background: "linear-gradient(90deg, #222, #b49217ff)",
   color: "#fff",
-  fontWeight: 600,
-  fontSize: 16,
+  fontWeight:  500,
+  fontSize: "1rem",
   cursor: "pointer",
-  marginTop: 10,
   transition: "all 0.3s ease",
-  boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
 };
+
 const socialTextStyle: React.CSSProperties = {
-  color: "#c1af0bff",
-  margin: "15px 0 10px",
+  color: "#fff",
+  margin: "13px 0 0px",
   fontSize: 14,
+  textAlign: "center",
 };
+
 const socialContainerStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
-  gap: 35,
-  marginBottom: 20,
+  gap: 18,
+  marginBottom: 0,
+  flexWrap: "wrap",
 };
-const footerTextStyle: React.CSSProperties = { color: "#e1e43cda", fontSize: 14 };
+
+const footerTextStyle: React.CSSProperties = {
+  color: "#fff",
+  fontSize: 17,
+  textAlign: "center",
+};
+
 const linkStyle: React.CSSProperties = {
   background: "none",
   border: "none",
-  color: "#f7f9ffff",
+  color: "#0a0a0aff",
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: 14,
-  transition: "0.3s ease",
+  fontSize: 15,
 };
+
 const phoneGroupStyle: React.CSSProperties = {
   flex: 1,
   display: "flex",
   alignItems: "center",
-  backgroundColor: "rgba(255,255,255,0.7)",
+  backgroundColor: "transparent",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.8)",
-  padding: "5px 10px",
+  border: "1px solid white",
+  padding: "10px 5px",
   gap: 5,
 };
+
 const prefixButton: React.CSSProperties = {
-  backgroundColor: "#a5a510ff",
-  color: "white",
+  backgroundColor: "#c5c026",
+  color: "#000",
   border: "none",
   borderRadius: 8,
-  padding: "6px 10px",
+  padding: "0px 8px",
   fontSize: 13,
   fontWeight: "bold",
 };
+
 const phoneInput: React.CSSProperties = {
   flex: 1,
   border: "none",
   outline: "none",
   background: "transparent",
   fontSize: 14,
+  color: "black",
 };
 
 export default Registro;
