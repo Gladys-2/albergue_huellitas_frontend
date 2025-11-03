@@ -2,6 +2,18 @@ import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaApple, FaEnvelope, FaLock } from "react-icons/fa";
 
+const globalStyles = document.createElement("style");
+globalStyles.innerHTML = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    width: 100%;
+    height: 100%;
+  }
+`;
+document.head.appendChild(globalStyles);
+
 interface LoginScreenProps {
   onLogin: (correo: string, contrasena: string) => void;
   mostrarRegistro: () => void;
@@ -18,60 +30,65 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) =
 
   return (
     <div style={wrapperStyle}>
-      {/* el lado izquierdo es la imagen */}
-      <div style={leftSideStyle}></div>
+      <div style={glassContainer}>
+        <h2 style={titleStyle}>Bienvenido a Huellitas</h2>
+        <p style={subtitleStyle}>Inicia sesión para continuar</p>
 
-      {/* el lado derecho es el login*/}
-      <div style={rightSideStyle}>
-        <div style={glassContainer}>
-          <h2 style={titleStyle}>Bienvenido a Huellitas</h2>
-          <p style={subtitleStyle}>Inicia sesión para continuar</p>
+        <form onSubmit={handleLogin} style={formStyle}>
+          <InputIcon
+            icon={<FaEnvelope />}
+            placeholder="Correo Electrónico"
+            value={correo}
+            onChange={setCorreo}
+            type="email"
+          />
+          <InputIcon
+            icon={<FaLock />}
+            placeholder="Contraseña"
+            value={contrasena}
+            onChange={setContrasena}
+            type="password"
+          />
+          <button type="submit" style={buttonStyle}>
+            Iniciar Sesión
+          </button>
+        </form>
 
-          <form onSubmit={handleLogin} style={formStyle}>
-            <InputIcon
-              icon={<FaEnvelope />}
-              placeholder="Correo Electrónico"
-              value={correo}
-              onChange={setCorreo}
-              type="email"
-            />
-            <InputIcon
-              icon={<FaLock />}
-              placeholder="Contraseña"
-              value={contrasena}
-              onChange={setContrasena}
-              type="password"
-            />
-            <button type="submit" style={buttonStyle}>
-              Iniciar Sesión
-            </button>
-          </form>
+        <p style={socialTextStyle}>O inicia sesión con</p>
 
-          <p style={socialTextStyle}>O inicia sesión con</p>
-
-          <div style={socialContainerStyle}>
-            <a href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer">
-              <FcGoogle style={{ fontSize: 30 }} />
-            </a>
-            <a href="https://www.facebook.com/login/" target="_blank" rel="noopener noreferrer" style={{ color: "#3967c1ff" }}>
-              <FaFacebookF style={{ fontSize: 28 }} />
-            </a>
-            <a href="https://appleid.apple.com/sign-in" target="_blank" rel="noopener noreferrer" style={{ color: "#000" }}>
-              <FaApple style={{ fontSize: 30 }} />
-            </a>
-          </div>
-
-          <p style={footerTextStyle}>
-            ¿No tienes cuenta?{" "}
-            <button onClick={mostrarRegistro} style={linkStyle}>
-              Crear cuenta
-            </button>
-          </p>
+        <div style={socialContainerStyle}>
+          <a href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer">
+            <FcGoogle style={{ fontSize: 30 }} />
+          </a>
+          <a
+            href="https://www.facebook.com/login/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#3967c1ff" }}
+          >
+            <FaFacebookF style={{ fontSize: 28 }} />
+          </a>
+          <a
+            href="https://appleid.apple.com/sign-in"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#000" }}
+          >
+            <FaApple style={{ fontSize: 30 }} />
+          </a>
         </div>
+
+        <p style={footerTextStyle}>
+          ¿No tienes cuenta?{" "}
+          <button onClick={mostrarRegistro} style={linkStyle}>
+            Crear cuenta
+          </button>
+        </p>
       </div>
     </div>
   );
 };
+
 const InputIcon: React.FC<{
   icon: React.ReactNode;
   placeholder: string;
@@ -92,54 +109,43 @@ const InputIcon: React.FC<{
   </div>
 );
 
-{/*Estilos */}
+{/* Estilos */}
 const wrapperStyle: React.CSSProperties = {
-  display: "flex",
-  height: "95vh",
-  fontFamily: "Poppins, sans-serif",
-  background: "linear-gradient(135deg, #151414ff, #000000ff, #121111ff)",
-};
-
-const leftSideStyle: React.CSSProperties = {
-  flex: 1,
-  backgroundImage: `url("src/assets/login-image.jpeg")`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  display: "none",
-};
-
-const rightSideStyle: React.CSSProperties = {
-  flex: 1,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  backdropFilter: "blur(10px)",
+  width: "100vw",
+  height: "100vh",
+  fontFamily: "Poppins, sans-serif",
+  backgroundImage: `url("src/assets/LG.jpeg")`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
 };
 
 const glassContainer: React.CSSProperties = {
   width: "90%",
-  maxWidth: 399,
+  maxWidth: 400,
   textAlign: "center",
-  background: "rgba(237, 239, 240, 0.2)",
-  borderRadius: 30,
-  padding: "35px 30px",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
-  border: "3px solid rgba(182, 199, 27, 0.96)",
-  color: "#a4800cff",
+  background: "rgba(255, 255, 255, 0.1)", 
+  borderRadius: "1.25rem",
+  padding: "3rem 2rem",
+  backdropFilter: "blur(12px)",
+  color: "#ffffffff",
+  boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
 };
 
 const titleStyle: React.CSSProperties = {
-  fontSize: 28,
+  fontSize: "2rem",
   fontWeight: 700,
-  marginBottom: 8,
-  letterSpacing: 0.8,
-  color: "#a4810eff",
+  marginBottom: 10,
+  color: "#090808ff",
 };
 
 const subtitleStyle: React.CSSProperties = {
-  fontSize: 15,
-  color: "#e0e0e0ff",
+  fontSize: "1rem",
   marginBottom: 25,
+  color: "#393838ff",
 };
 
 const formStyle: React.CSSProperties = {
@@ -151,12 +157,10 @@ const formStyle: React.CSSProperties = {
 const inputGroup: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  gap: 9,
-  border: "1px solid rgba(255, 255, 255, 0.96)",
-  padding: "10px 12px",
-  borderRadius: 10,
-  backgroundColor: "rgba(255, 255, 255, 0.69)",
-  transition: "0.3s",
+  gap: "0.6rem",
+  padding: "0.6rem 0.8rem",
+  borderRadius: "0.625rem",
+  backgroundColor: "rgba(255,255,255,0.2)",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -164,26 +168,24 @@ const inputStyle: React.CSSProperties = {
   border: "none",
   outline: "none",
   background: "transparent",
-  fontSize: 14,
-  color: "#101111ff",
+  color: "#fff",
+  fontSize: "1rem",
 };
 
 const buttonStyle: React.CSSProperties = {
-  padding: "11px 0",
+  padding: "12px 0",
   borderRadius: 10,
   border: "none",
-  background: "linear-gradient(90deg, #161616ff, #c5c026ff)",
-  color: "#ffffffff",
+  background: "linear-gradient(90deg, #5f5757ff, #c59526ff)",
+  color: "#fff",
   fontWeight: 600,
-  fontSize: 16,
+  fontSize: "1rem",
   cursor: "pointer",
-  marginTop: 10,
   transition: "all 0.3s ease",
-  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.4)",
 };
 
 const socialTextStyle: React.CSSProperties = {
-  color: "#bdc31cff",
+  color: "#fffbfbff",
   margin: "15px 0 10px",
   fontSize: 14,
 };
@@ -191,40 +193,53 @@ const socialTextStyle: React.CSSProperties = {
 const socialContainerStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
-  gap: 35,
+  gap: 25,
   marginBottom: 20,
 };
 
 const footerTextStyle: React.CSSProperties = {
-  color: "#c3bb18ff",
+  color: "#0b0b0bff",
   fontSize: 14,
 };
 
 const linkStyle: React.CSSProperties = {
   background: "none",
   border: "none",
-  color: "#f7f9ffff",
+  color: "#000000ff",
   cursor: "pointer",
   fontWeight: "bold",
   fontSize: 14,
-  transition: "0.3s ease",
 };
 
-const style = document.createElement("style");
-style.innerHTML = `
-@media (min-width: 768px) {
-  div[style*="background-image"] {
-    display: block !important;
+{/* Media queries para responsiveness */}
+const mediaQuery = `
+@media (max-width: 1024px) {
+  div[style*="backdrop-filter"] {
+    width: 85%;
+    padding: 2.5rem 1.5rem;
   }
+  input { font-size: 0.95rem; }
+  button { font-size: 0.95rem; }
 }
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(28, 26, 26, 0.5);
+@media (max-width: 768px) {
+  div[style*="backdrop-filter"] {
+    width: 90%;
+    padding: 2rem 1rem;
+  }
+  input { font-size: 0.9rem; }
+  button { font-size: 0.9rem; }
 }
-input:focus {
-  border-color: #a7a40fff !important;
+@media (max-width: 480px) {
+  div[style*="backdrop-filter"] {
+    width: 95%;
+    padding: 1.5rem 1rem;
+  }
+  input { font-size: 0.85rem; }
+  button { font-size: 0.85rem; }
 }
 `;
+const style = document.createElement("style");
+style.innerHTML = mediaQuery;
 document.head.appendChild(style);
 
 export default LoginScreen;

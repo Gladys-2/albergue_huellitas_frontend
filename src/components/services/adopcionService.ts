@@ -12,3 +12,10 @@ export const crearAdopcion = async (adopcion: Omit<Adopcion, "id">) => {
   const res = await axios.post(API_URL, adopcion);
   return res.data as Adopcion;
 };
+
+export function getAdopciones() {
+    throw new Error("Function not implemented.");
+}
+export function actualizarEstadoAdopcion(_id: number, _nuevoEstado: string) {
+    throw new Error("Function not implemented.");
+}
