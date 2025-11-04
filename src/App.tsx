@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const irPerros = () => setPantalla("perros");
   const irGatos = () => setPantalla("gatos");
 
+  // Cargar usuarios desde backend
   const cargarUsuarios = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/usuarios");
@@ -48,6 +49,7 @@ const App: React.FC = () => {
     if (pantalla === "usuarios") cargarUsuarios();
   }, [pantalla]);
 
+  // Login
   const handleLogin = async (correo: string, contrasena: string) => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
@@ -65,26 +67,37 @@ const App: React.FC = () => {
     }
   };
 
+  // Guardar o crear usuario
   const handleGuardar = async (usuario: Usuario) => {
     try {
       if (usuario.id) {
+        // Editar usuario
         await axios.put(`http://localhost:5000/api/usuarios/${usuario.id}`, usuario);
       } else {
+        // Crear usuario
+        if (!usuario.contrasena) {
+          alert("La contraseña es obligatoria al crear un usuario.");
+          return;
+        }
         await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
       }
+
       setMostrarModal(false);
       setUsuarioEditar(null);
       cargarUsuarios();
     } catch (error) {
       console.error(error);
+      alert("Error al guardar el usuario");
     }
   };
 
+  // Editar
   const handleEditar = (usuario: Usuario) => {
     setUsuarioEditar(usuario);
     setMostrarModal(true);
   };
 
+  // Eliminar
   const handleEliminar = async (id: number) => {
     if (!window.confirm("¿Deseas eliminar este usuario?")) return;
     try {
@@ -92,9 +105,11 @@ const App: React.FC = () => {
       cargarUsuarios();
     } catch (error) {
       console.error(error);
+      alert("Error al eliminar el usuario");
     }
   };
 
+  // Exportar CSV
   const exportCSV = () => {
     const csv = [
       ["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"],
@@ -118,6 +133,7 @@ const App: React.FC = () => {
     link.click();
   };
 
+  // Exportar Excel
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       usuarios.map((u) => ({
@@ -135,6 +151,7 @@ const App: React.FC = () => {
     XLSX.writeFile(wb, "usuarios.xlsx");
   };
 
+  // Exportar PDF
   const exportPDF = () => {
     const doc = new jsPDF();
     const head = [["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"]];
@@ -159,28 +176,28 @@ const App: React.FC = () => {
     doc.save("usuarios.pdf");
   };
 
+  // Filtrar usuarios
   const usuariosFiltrados = usuarios
-  .filter((u) => {
-    const textoBuscar = buscar.toLowerCase().trim(); 
-    const nombre = (u.nombre ?? "").toLowerCase();
-    const apellidoP = (u.apellido_paterno ?? "").toLowerCase();
-    const apellidoM = (u.apellido_materno ?? "").toLowerCase();
-    const correo = (u.correo_electronico ?? "").toLowerCase();
-
-    return (
-      nombre.startsWith(textoBuscar) ||
-      apellidoP.startsWith(textoBuscar) ||
-      apellidoM.startsWith(textoBuscar) ||
-      correo.startsWith(textoBuscar)
-    );
-  })
-  .slice(0, mostrar > 0 ? mostrar : usuarios.length);
+    .filter((u) => {
+      const textoBuscar = buscar.toLowerCase().trim();
+      const nombre = (u.nombre ?? "").toLowerCase();
+      const apellidoP = (u.apellido_paterno ?? "").toLowerCase();
+      const apellidoM = (u.apellido_materno ?? "").toLowerCase();
+      const correo = (u.correo_electronico ?? "").toLowerCase();
+      return (
+        nombre.startsWith(textoBuscar) ||
+        apellidoP.startsWith(textoBuscar) ||
+        apellidoM.startsWith(textoBuscar) ||
+        correo.startsWith(textoBuscar)
+      );
+    })
+    .slice(0, mostrar > 0 ? mostrar : usuarios.length);
 
   const styles: { [key: string]: CSSProperties } = {
-    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffffff, #ffffff, #ffffffff)" },
+    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffff, #ffffff)" },
     mainSection: { flex: 1, transition: "padding-left 0.3s" },
     content: { padding: "1rem", overflowY: "auto" },
-    bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", width: "%", maxWidth: "11000px", margin: "0 auto", overflow: "hidden" },
+    bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", margin: "0 auto" },
     bandejaHeader: { display: "flex", flexDirection: "column", gap: "1rem" },
     titulo: { fontSize: "2rem", color: "#897511ff", textAlign: "center", fontWeight: "bold" },
     accionesHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" },
@@ -251,7 +268,7 @@ const App: React.FC = () => {
                           onChange={(e) => setBuscar(e.target.value)}
                         />
                         {usuarioActual.rol === "administrador" && (
-                          <button style={styles.btnCrear} onClick={() => setMostrarModal(true)}>＋</button>
+                          <button style={styles.btnCrear} onClick={() => { setUsuarioEditar(null); setMostrarModal(true); }}>＋</button>
                         )}
                       </div>
                     </div>
@@ -272,10 +289,7 @@ const App: React.FC = () => {
             {mostrarModal && usuarioActual.rol === "administrador" && (
               <ModalUsuario
                 usuario={usuarioEditar}
-                onClose={() => {
-                  setMostrarModal(false);
-                  setUsuarioEditar(null);
-                }}
+                onClose={() => { setMostrarModal(false); setUsuarioEditar(null); }}
                 onSave={handleGuardar}
               />
             )}

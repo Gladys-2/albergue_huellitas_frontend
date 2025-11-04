@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import type { Usuario } from "../types/types";
-import "../App.css";
 
 interface ModalProps {
   usuario: Usuario | null;
@@ -28,7 +27,7 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       setCedulaIdentidad(usuario.cedula_identidad ?? "");
       setTelefono(usuario.telefono ?? "");
       setCorreoElectronico(usuario.correo_electronico ?? "");
-      setContrasena(usuario.contrasena ?? "");
+      setContrasena("");
       setRol((usuario.rol ?? "usuario") as "usuario" | "administrador");
       setGenero((usuario.genero ?? "O") as "M" | "F" | "O");
       setEstado((usuario.estado ?? "Activo") as "Activo" | "Inactivo");
@@ -52,7 +51,7 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       return;
     }
 
-    onSave({
+    const usuarioAGuardar: Usuario = {
       id: usuario?.id,
       nombre,
       apellido_paterno: apellidoPaterno,
@@ -60,16 +59,20 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       cedula_identidad: cedulaIdentidad,
       telefono,
       correo_electronico: correoElectronico,
-      contrasena,
       rol,
       genero,
       estado,
-    });
+    };
+
+    if (contrasena) {
+      usuarioAGuardar.contrasena = contrasena;
+    }
+
+    onSave(usuarioAGuardar);
   };
 
   return (
     <div
-      className="modal-usuario"
       style={{
         position: "fixed",
         top: 0,
@@ -84,7 +87,6 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       }}
     >
       <div
-        className="modal-contenido"
         style={{
           backgroundColor: "#fff",
           borderRadius: "20px",
@@ -108,101 +110,23 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
         </h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          <input
-            type="text"
-            placeholder="Nombre"
-            value={nombre}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setNombre(value);
-            }}
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            placeholder="Apellido Paterno"
-            value={apellidoPaterno}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setApellidoPaterno(value);
-            }}
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            placeholder="Apellido Materno"
-            value={apellidoMaterno}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(value)) setApellidoMaterno(value);
-            }}
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            placeholder="Cédula de Identidad"
-            value={cedulaIdentidad}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[0-9]*$/.test(value)) setCedulaIdentidad(value);
-            }}
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            placeholder="Teléfono"
-            value={telefono}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^[0-9]*$/.test(value)) setTelefono(value);
-            }}
-            style={inputStyle}
-          />
-
-          <input
-            type="email"
-            placeholder="Correo Electrónico"
-            value={correoElectronico}
-            onChange={(e) => setCorreoElectronico(e.target.value)}
-            style={inputStyle}
-          />
-
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={contrasena}
-            onChange={(e) => setContrasena(e.target.value)}
-            style={inputStyle}
-          />
-
-          <select
-            value={rol}
-            onChange={(e) => setRol(e.target.value as "usuario" | "administrador")}
-            style={selectStyle}
-          >
+          <input type="text" placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle}/>
+          <input type="text" placeholder="Apellido Paterno" value={apellidoPaterno} onChange={e => setApellidoPaterno(e.target.value)} style={inputStyle}/>
+          <input type="text" placeholder="Apellido Materno" value={apellidoMaterno} onChange={e => setApellidoMaterno(e.target.value)} style={inputStyle}/>
+          <input type="text" placeholder="Cédula de Identidad" value={cedulaIdentidad} onChange={e => setCedulaIdentidad(e.target.value)} style={inputStyle}/>
+          <input type="text" placeholder="Teléfono" value={telefono} onChange={e => setTelefono(e.target.value)} style={inputStyle}/>
+          <input type="email" placeholder="Correo Electrónico" value={correoElectronico} onChange={e => setCorreoElectronico(e.target.value)} style={inputStyle}/>
+          <input type="password" placeholder={usuario ? "Nueva Contraseña (opcional)" : "Contraseña"} value={contrasena} onChange={e => setContrasena(e.target.value)} style={inputStyle}/>
+          <select value={rol} onChange={e => setRol(e.target.value as "usuario" | "administrador")} style={selectStyle}>
             <option value="usuario">Usuario</option>
             <option value="administrador">Administrador</option>
           </select>
-
-          <select
-            value={genero}
-            onChange={(e) => setGenero(e.target.value as "M" | "F" | "O")}
-            style={selectStyle}
-          >
+          <select value={genero} onChange={e => setGenero(e.target.value as "M" | "F" | "O")} style={selectStyle}>
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
             <option value="O">Otro</option>
           </select>
-
-          <select
-            value={estado}
-            onChange={(e) => setEstado(e.target.value as "Activo" | "Inactivo")}
-            style={selectStyle}
-          >
+          <select value={estado} onChange={e => setEstado(e.target.value as "Activo" | "Inactivo")} style={selectStyle}>
             <option value="Activo">Activo</option>
             <option value="Inactivo">Inactivo</option>
           </select>
@@ -217,38 +141,9 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
   );
 };
 
-const inputStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 10,
-  border: "1px solid #ccc",
-  outline: "none",
-  fontSize: 14,
-  width: "100%",
-};
-
-const selectStyle: React.CSSProperties = {
-  ...inputStyle,
-  appearance: "none",
-};
-
-const buttonGuardar: React.CSSProperties = {
-  padding: "10px 20px",
-  borderRadius: 10,
-  border: "none",
-  background: "linear-gradient(90deg, #137497, #f59e0b)",
-  color: "#fff",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-const buttonCancelar: React.CSSProperties = {
-  padding: "10px 20px",
-  borderRadius: 10,
-  border: "1px solid #ccc",
-  background: "#fff",
-  color: "#333",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
+const inputStyle: React.CSSProperties = { padding: "10px 12px", borderRadius: 10, border: "1px solid #ccc", outline: "none", fontSize: 14, width: "100%" };
+const selectStyle: React.CSSProperties = { ...inputStyle, appearance: "none" };
+const buttonGuardar: React.CSSProperties = { padding: "10px 20px", borderRadius: 10, border: "none", background: "linear-gradient(90deg, #137497, #f59e0b)", color: "#fff", fontWeight: "bold", cursor: "pointer" };
+const buttonCancelar: React.CSSProperties = { padding: "10px 20px", borderRadius: 10, border: "1px solid #ccc", background: "#fff", color: "#333", fontWeight: "bold", cursor: "pointer" };
 
 export default ModalUsuario;

@@ -10,12 +10,12 @@ export const obtenerUsuarios = async (): Promise<Usuario[]> => {
 
 export const crearUsuario = async (usuario: Omit<Usuario, "id">): Promise<Usuario> => {
   const res = await axios.post(`${API_URL}/crear-usuario`, usuario);
-  return res.data;
+  return res.data.usuario; 
 };
 
 export const actualizarUsuario = async (id: number, usuario: Omit<Usuario, "id">): Promise<Usuario> => {
   const res = await axios.put(`${API_URL}/${id}`, usuario);
-  return res.data;
+  return res.data.usuario; 
 };
 
 export const eliminarUsuario = async (id: number): Promise<void> => {
