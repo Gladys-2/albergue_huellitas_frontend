@@ -10,11 +10,27 @@ import type { Usuario } from "./types/types";
 import Inicio from "./components/pages/Inicio";
 import Perros from "./components/pages/perros";
 import Gatos from "./components/pages/gatos";
+import Adopciones from "./components/pages/Adopciones";
+import Voluntarios from "./components/pages/Voluntarios";
+import Reportes from "./components/pages/Reportes";
+import Configuracion from "./components/pages/Configuracion";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-type Pantalla = "login" | "registro" | "dashboard" | "inicio" | "usuarios" | "perros" | "gatos";
+type Pantalla = 
+  | "login"
+  | "registro"
+  | "dashboard"
+  | "inicio"
+  | "usuarios"
+  | "perros"
+  | "gatos"
+  | "adopciones"
+  | "voluntarios"
+  | "reportes"
+  | "configuracion"
+  | "salir";
 
 const App: React.FC = () => {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
@@ -34,8 +50,11 @@ const App: React.FC = () => {
   const irUsuarios = () => setPantalla("usuarios");
   const irPerros = () => setPantalla("perros");
   const irGatos = () => setPantalla("gatos");
+  const irAdopciones = () => setPantalla("adopciones");
+  const irVoluntarios = () => setPantalla("voluntarios");
+  const irReportes = () => setPantalla("reportes");
+  const irConfiguracion = () => setPantalla("configuracion");
 
-  // Cargar usuarios desde backend
   const cargarUsuarios = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/usuarios");
@@ -49,7 +68,6 @@ const App: React.FC = () => {
     if (pantalla === "usuarios") cargarUsuarios();
   }, [pantalla]);
 
-  // Login
   const handleLogin = async (correo: string, contrasena: string) => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", {
@@ -67,14 +85,14 @@ const App: React.FC = () => {
     }
   };
 
-  // Guardar o crear usuario
+  
   const handleGuardar = async (usuario: Usuario) => {
     try {
       if (usuario.id) {
-        // Editar usuario
+        
         await axios.put(`http://localhost:5000/api/usuarios/${usuario.id}`, usuario);
       } else {
-        // Crear usuario
+        
         if (!usuario.contrasena) {
           alert("La contraseña es obligatoria al crear un usuario.");
           return;
@@ -91,13 +109,12 @@ const App: React.FC = () => {
     }
   };
 
-  // Editar
+  
   const handleEditar = (usuario: Usuario) => {
     setUsuarioEditar(usuario);
     setMostrarModal(true);
   };
 
-  // Eliminar
   const handleEliminar = async (id: number) => {
     if (!window.confirm("¿Deseas eliminar este usuario?")) return;
     try {
@@ -109,7 +126,7 @@ const App: React.FC = () => {
     }
   };
 
-  // Exportar CSV
+  
   const exportCSV = () => {
     const csv = [
       ["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"],
@@ -133,7 +150,7 @@ const App: React.FC = () => {
     link.click();
   };
 
-  // Exportar Excel
+  
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       usuarios.map((u) => ({
@@ -151,7 +168,7 @@ const App: React.FC = () => {
     XLSX.writeFile(wb, "usuarios.xlsx");
   };
 
-  // Exportar PDF
+  
   const exportPDF = () => {
     const doc = new jsPDF();
     const head = [["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"]];
@@ -176,7 +193,6 @@ const App: React.FC = () => {
     doc.save("usuarios.pdf");
   };
 
-  // Filtrar usuarios
   const usuariosFiltrados = usuarios
     .filter((u) => {
       const textoBuscar = buscar.toLowerCase().trim();
@@ -192,7 +208,7 @@ const App: React.FC = () => {
       );
     })
     .slice(0, mostrar > 0 ? mostrar : usuarios.length);
-
+    
   const styles: { [key: string]: CSSProperties } = {
     dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffff, #ffffff)" },
     mainSection: { flex: 1, transition: "padding-left 0.3s" },
@@ -210,7 +226,12 @@ const App: React.FC = () => {
     inputBuscar: { padding: "0.4rem 0.6rem", border: "1px solid #ccc", borderRadius: "0.25rem" },
     btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer" },
   };
-
+  useEffect(() => {
+    if (pantalla === "salir") {
+      setUsuarioActual(null);
+      irLogin();
+    }
+  }, [pantalla]);
   return (
     <div>
       {pantalla === "login" && <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />}
@@ -228,6 +249,11 @@ const App: React.FC = () => {
                 case "usuarios": irUsuarios(); break;
                 case "perros": irPerros(); break;
                 case "gatos": irGatos(); break;
+                case "adopciones": irAdopciones(); break;
+                case "voluntarios": irVoluntarios(); break;
+                case "reportes": irReportes(); break;
+                case "configuracion": irConfiguracion(); break;
+                case "salir": setPantalla("salir"); break;
               }
             }}
           />
@@ -284,6 +310,10 @@ const App: React.FC = () => {
               )}
               {pantalla === "perros" && <Perros />}
               {pantalla === "gatos" && <Gatos />}
+              {pantalla === "adopciones" && <Adopciones />}
+              {pantalla === "voluntarios" && <Voluntarios />}
+              {pantalla === "reportes" && <Reportes />}
+              {pantalla === "configuracion" && <Configuracion />}
             </main>
 
             {mostrarModal && usuarioActual.rol === "administrador" && (

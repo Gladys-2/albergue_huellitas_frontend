@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# Albergue Huellitas - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositorio contiene la parte frontend del proyecto Albergue Huellitas, una plataforma web para gestionar adopciones, usuarios, animales y voluntarios de un albergue de mascotas.
 
-Currently, two official plugins are available:
+La aplicación permite administrar información de usuarios, perros y gatos, registrar adopciones y voluntarios, y generar reportes de manera rápida y organizada.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Tecnologías utilizadas
+1.React v18 con TypeScript
+2.Vite como herramienta de desarrollo y bundler
+3.Axios para comunicación con el backend
+4.React Icons para los íconos de la interfaz
+5.jsPDF y XLSX para exportar reportes en PDF y Excel
+6.CSS-in-JS con CSSProperties para estilos flexibles
+7.Backend: Node.js + Express (API REST)
 
-## React Compiler
+# Estructura del proyecto
+/albergue_huellitas_frontend
+├─ /public
+├─ /src
+│  ├─ /components
+│  │  ├─ Navbar.tsx
+│  │  ├─ Sidebar.tsx
+│  │  ├─ ModalUsuario.tsx
+│  │  ├─ BandejaUsuarios.tsx
+│  │  ├─ LoginScreen.tsx
+│  │  └─ Registro.tsx
+│  ├─ /pages
+│  │  ├─ Inicio.tsx
+│  │  ├─ Perros.tsx
+│  │  ├─ Gatos.tsx
+│  │  ├─ Adopciones.tsx
+│  │  ├─ Voluntarios.tsx
+│  │  ├─ Reportes.tsx
+│  │  └─ Configuracion.tsx
+│  ├─ /types
+│  │  └─ types.ts
+│  ├─ App.tsx
+│  └─ main.tsx
+├─ package.json
+├─ tsconfig.json
+└─ vite.config.ts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Funcionalidades principales
 
-## Expanding the ESLint configuration
+Usuarios: crear, editar y eliminar. Control de rol (administrador/usuario).
+Animales: ver perros y gatos disponibles para adopción.
+Adopciones y voluntarios: registrar y dar seguimiento a las adopciones y voluntarios.
+Reportes: exportar usuarios a CSV, Excel o PDF.
+Sidebar dinámico: adaptado para móviles y escritorio.
+Autenticación: login y registro con control de roles.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Instalación y ejecución
+Clonar el repositorio:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+git clone https://github.com/Gladys-2/albergue_huellitas_frontend.git
+cd albergue_huellitas_frontend
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Instalar dependencias:**
+npm install
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Ejecutar el proyecto en modo desarrollo:**
+npm run dev
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+
+**Abrir en el navegador:**
+http://localhost:5173
+
+
+Asegúrate de que el backend esté corriendo en http://localhost:5000 para que la aplicación funcione correctamente.
+
+# Configuración
+Si el backend no está en localhost:5000, actualiza la URL en los servicios que consumen la API, por ejemplo:
+
+const API_URL = "http://TU_BACKEND:PUERTO/api/usuarios";
+
+# Uso
+1. Inicia sesión con un usuario existente o crea uno nuevo.
+2. Usa el sidebar para navegar entre: Inicio, Usuarios, Perros, Gatos, Adopciones, Voluntarios, Reportes y Configuración.
+3. Los usuarios con rol administrador pueden crear, editar y eliminar usuarios.
+4. Exporta los reportes desde la bandeja de usuarios en CSV, Excel o PDF.
