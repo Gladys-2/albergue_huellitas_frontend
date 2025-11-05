@@ -257,8 +257,8 @@ const App: React.FC = () => {
               }
             }}
           />
-          <div style={{ ...styles.mainSection, paddingLeft: sidebarOpen ? "220px" : "1cm" }}>
-            <Navbar toggleSidebar={toggleSidebar} usuario={usuarioActual} />
+          <div style={{ ...styles.mainSection, paddingLeft: sidebarOpen ? 220 : 70 }}>
+            <Navbar toggleSidebar={toggleSidebar} collapsed={!sidebarOpen} usuario={usuarioActual} />
             <main style={styles.content}>
               {pantalla === "inicio" && <Inicio />}
               {pantalla === "usuarios" && (
