@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaUserCircle, FaBell, FaQuestionCircle } from "react-icons/fa";
 import { HiOutlineMenu } from "react-icons/hi";
+import { IoMdGlobe } from "react-icons/io";
 import type { Usuario } from "../types/types";
 
 interface NavbarProps {
@@ -9,6 +10,24 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
+  const [idioma, setIdioma] = useState<"es" | "en">("es");
+
+  // Traducciones simples
+  const textos = {
+    es: {
+      appName: "HUELLITAS",
+      roleAdmin: "Administrador",
+      roleUser: "Usuario",
+    },
+    en: {
+      appName: "HUELLITAS",
+      roleAdmin: "Administrator",
+      roleUser: "User",
+    },
+  };
+
+  const toggleIdioma = () => setIdioma(idioma === "es" ? "en" : "es");
+
   return (
     <header
       style={{
@@ -27,6 +46,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         color: "#000",
       }}
     >
+      {/* Botón de menú */}
       <button
         onClick={toggleSidebar}
         style={{
@@ -43,6 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
         <HiOutlineMenu />
       </button>
 
+      {/* Título */}
       <div
         style={{
           flex: 1,
@@ -61,38 +82,42 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
             color: "#000",
           }}
         >
-          HUELLITAS
+          {textos[idioma].appName}
         </h1>
       </div>
 
+      {/* Información del usuario y íconos */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 8,
           flexShrink: 0,
-          maxWidth: 200,
+          maxWidth: 250,
         }}
       >
+        {/* Rol del usuario */}
         {usuario && (
           <span
             style={{
-              fontSize: 9,
-              fontWeight: 200,
+              fontSize: 12,
+              fontWeight: 500,
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              padding: "14px 9px",
+              padding: "10px 12px",
               borderRadius: 90,
               background: usuario.rol === "administrador" ? "#98dc06ff" : "rgba(0, 255, 145, 1)",
               color: "#000",
               transition: "all 0.3s ease",
             }}
+            title={usuario.rol === "administrador" ? textos[idioma].roleAdmin : textos[idioma].roleUser}
           >
             {usuario.nombre} {usuario.apellido_paterno}
           </span>
         )}
 
+        {/* Íconos */}
         {[FaQuestionCircle, FaBell, FaUserCircle].map((Icon, idx) => (
           <Icon
             key={idx}
@@ -106,6 +131,27 @@ const Navbar: React.FC<NavbarProps> = ({ usuario, toggleSidebar }) => {
             }}
           />
         ))}
+
+        {/* Selector de idioma */}
+        <button
+          onClick={toggleIdioma}
+          style={{
+            cursor: "pointer",
+            background: "rgba(255,255,255,0.2)",
+            border: "none",
+            borderRadius: 6,
+            padding: "6px 8px",
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            color: "#000",
+            transition: "all 0.3s ease",
+          }}
+          title={idioma === "es" ? "Cambiar a Inglés" : "Switch to Spanish"}
+        >
+          <IoMdGlobe size={22} />
+          {idioma.toUpperCase()}
+        </button>
       </div>
     </header>
   );
