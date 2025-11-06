@@ -18,6 +18,9 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+// Tipo ajustado para manejar usuarios desde el modal
+type UsuarioModal = Omit<Usuario, "avatarUrl"> & { id?: number; contrasena?: string };
+
 type Pantalla = 
   | "login"
   | "registro"
@@ -85,14 +88,29 @@ const App: React.FC = () => {
     }
   };
 
-  
-  const handleGuardar = async (usuario: Usuario) => {
+  // ⚡ Ajuste principal: handleGuardar ahora recibe UsuarioModal
+  const handleGuardar = async (usuario: UsuarioModal) => {
     try {
       if (usuario.id) {
-        
-        await axios.put(`http://localhost:5000/api/usuarios/${usuario.id}`, usuario);
+        const usuarioActualizar: Partial<UsuarioModal> = {
+          nombre: usuario.nombre,
+          apellido_paterno: usuario.apellido_paterno,
+          apellido_materno: usuario.apellido_materno,
+          cedula_identidad: usuario.cedula_identidad,
+          telefono: usuario.telefono,
+          correo_electronico: usuario.correo_electronico,
+          rol: usuario.rol,
+          genero: usuario.genero,
+          estado: usuario.estado,
+        };
+
+        if (usuario.contrasena) usuarioActualizar.contrasena = usuario.contrasena;
+
+        await axios.put(
+          `http://localhost:5000/api/usuarios/actualizar-usuario/${usuario.id}`,
+          usuarioActualizar
+        );
       } else {
-        
         if (!usuario.contrasena) {
           alert("La contraseña es obligatoria al crear un usuario.");
           return;
@@ -109,7 +127,6 @@ const App: React.FC = () => {
     }
   };
 
-  
   const handleEditar = (usuario: Usuario) => {
     setUsuarioEditar(usuario);
     setMostrarModal(true);
@@ -118,7 +135,7 @@ const App: React.FC = () => {
   const handleEliminar = async (id: number) => {
     if (!window.confirm("¿Deseas eliminar este usuario?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/usuarios/${id}`);
+      await axios.delete(`http://localhost:5000/api/usuarios/eliminar-usuario/${id}`);
       cargarUsuarios();
     } catch (error) {
       console.error(error);
@@ -126,7 +143,6 @@ const App: React.FC = () => {
     }
   };
 
-  
   const exportCSV = () => {
     const csv = [
       ["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"],
@@ -150,7 +166,6 @@ const App: React.FC = () => {
     link.click();
   };
 
-  
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       usuarios.map((u) => ({
@@ -168,7 +183,6 @@ const App: React.FC = () => {
     XLSX.writeFile(wb, "usuarios.xlsx");
   };
 
-  
   const exportPDF = () => {
     const doc = new jsPDF();
     const head = [["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"]];
@@ -208,7 +222,7 @@ const App: React.FC = () => {
       );
     })
     .slice(0, mostrar > 0 ? mostrar : usuarios.length);
-    
+
   const styles: { [key: string]: CSSProperties } = {
     dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffff, #ffffff)" },
     mainSection: { flex: 1, transition: "padding-left 0.3s" },
@@ -226,12 +240,14 @@ const App: React.FC = () => {
     inputBuscar: { padding: "0.4rem 0.6rem", border: "1px solid #ccc", borderRadius: "0.25rem" },
     btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer" },
   };
+
   useEffect(() => {
     if (pantalla === "salir") {
       setUsuarioActual(null);
       irLogin();
     }
   }, [pantalla]);
+
   return (
     <div>
       {pantalla === "login" && <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />}
@@ -278,9 +294,9 @@ const App: React.FC = () => {
                             onChange={(e) => setMostrar(Number(e.target.value))}
                           >
                             <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                            <option value={50}>50</option>
+                            <option value={25}>10</option>
+                            <option value={50}>25</option>
+                            <option value={100}>50</option>
                             <option value={-1}>Todos</option>
                           </select>
                         </label>
