@@ -36,6 +36,14 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
       alert("Selecciona un género.");
       return;
     }
+    if (cedulaIdentidad.length !== 8) {
+      alert("La cédula de identidad debe tener 8 números.");
+      return;
+    }
+    if (telefono.length !== 8) {
+      alert("El teléfono debe tener 8 números.");
+      return;
+    }
 
     const generoBackend =
       genero === "Masculino" ? "M" : genero === "Femenino" ? "F" : "O";
@@ -83,16 +91,12 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
 
   return (
     <div style={wrapperStyle}>
-      {/* --- ESTILO PLACEHOLDER Y MEDIA QUERIES --- */}
       <style>
         {`
-          /* Cambiar color de los placeholders */
           .input-placeholder::placeholder {
             color: #ffffffff; 
             opacity: 1;     
           }
-
-          /* Responsivo: apilar campos en móviles */
           @media (max-width: 768px) {
             .fila {
               flex-direction: column !important;
@@ -110,35 +114,41 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
         <p style={subtitleStyle}>Bienvenido a Huellitas</p>
 
         <form onSubmit={handleRegistro} style={formStyle}>
-          {/* --- Fila de Nombre / Apellidos --- */}
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaUser />}
               placeholder="Nombre"
               value={nombre}
-              onChange={setNombre}
+              onChange={(val) => {
+                if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setNombre(val);
+              }}
             />
             <InputIcon
               icon={<FaUser />}
               placeholder="Apellido Paterno"
               value={apellidoPaterno}
-              onChange={setApellidoPaterno}
+              onChange={(val) => {
+                if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setApellidoPaterno(val);
+              }}
             />
             <InputIcon
               icon={<FaUser />}
               placeholder="Apellido Materno"
               value={apellidoMaterno}
-              onChange={setApellidoMaterno}
+              onChange={(val) => {
+                if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setApellidoMaterno(val);
+              }}
             />
           </div>
 
-          {/* --- Fila de Cédula / Teléfono / Correo corregida --- */}
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaIdCard />}
               placeholder="Cédula de Identidad"
               value={cedulaIdentidad}
-              onChange={setCedulaIdentidad}
+              onChange={(val) => {
+                if (/^\d{0,8}$/.test(val)) setCedulaIdentidad(val);
+              }}
             />
             <div style={{ ...phoneGroupStyle, flex: 1 }}>
               <button type="button" style={prefixButton}>
@@ -149,7 +159,10 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
                 type="text"
                 placeholder="Número (8 dígitos)"
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                onChange={(e) => {
+                  const valor = e.target.value;
+                  if (/^\d{0,8}$/.test(valor)) setTelefono(valor);
+                }}
                 style={phoneInput}
                 className="input-placeholder"
                 required
@@ -164,7 +177,6 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
             />
           </div>
 
-          {/* --- Fila Contraseña / Confirmar / Género --- */}
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaLock />}
@@ -257,7 +269,6 @@ const InputIcon: React.FC<{
   </div>
 );
 
-{/* --- Estilos --- */}
 const wrapperStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
