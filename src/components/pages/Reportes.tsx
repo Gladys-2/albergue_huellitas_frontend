@@ -1,9 +1,8 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-// Configuración de iconos de Leaflet para evitar errores
 const DefaultIcon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -21,13 +20,13 @@ const Reportes: React.FC = () => {
     { title: "Donaciones Recibidas (Bs)", value: "65k", color: "#9b59b6" },
   ];
 
-  const puntosRescate = [
+  const puntosRescate: { name: string; coords: [number, number]; casos: number }[] = [
     { name: "Zona Sur, La Paz", coords: [-16.520, -68.150], casos: 15 },
     { name: "El Alto", coords: [-16.500, -68.200], casos: 12 },
     { name: "Centro, La Paz", coords: [-16.500, -68.150], casos: 8 },
   ];
 
-  const laPazCoords: [number, number] = [-16.5000, -68.1500];
+  const laPazCoords: [number, number] = [-16.500, -68.150];
 
   return (
     <div style={container}>
@@ -52,7 +51,9 @@ const Reportes: React.FC = () => {
             />
             {puntosRescate.map((p) => (
               <Marker key={p.name} position={p.coords}>
-                <Popup>{p.name}: {p.casos} rescates</Popup>
+                <Popup>
+                  {p.name}: {p.casos} rescates
+                </Popup>
               </Marker>
             ))}
           </MapContainer>
