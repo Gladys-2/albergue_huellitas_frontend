@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import type { Usuario } from "../types/types";
 
+type UsuarioModal = Omit<Usuario, "avatarUrl"> & { id?: number; contrasena?: string };
+
 interface ModalProps {
   usuario: Usuario | null;
   onClose: () => void;
-  onSave: (usuario: Usuario) => void;
+  onSave: (usuario: UsuarioModal) => void;
 }
 
 const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
@@ -51,7 +53,7 @@ const ModalUsuario: React.FC<ModalProps> = ({ usuario, onClose, onSave }) => {
       return;
     }
 
-    const usuarioAGuardar: Usuario = {
+    const usuarioAGuardar: UsuarioModal = {
       id: usuario?.id,
       nombre,
       apellido_paterno: apellidoPaterno,
