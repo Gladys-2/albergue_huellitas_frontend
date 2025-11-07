@@ -18,7 +18,6 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// Tipo ajustado para manejar usuarios desde el modal
 type UsuarioModal = Omit<Usuario, "avatarUrl"> & { id?: number; contrasena?: string };
 
 type Pantalla = 
@@ -88,7 +87,6 @@ const App: React.FC = () => {
     }
   };
 
-  // ⚡ Ajuste principal: handleGuardar ahora recibe UsuarioModal
   const handleGuardar = async (usuario: UsuarioModal) => {
     try {
       if (usuario.id) {
