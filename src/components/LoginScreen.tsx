@@ -1,123 +1,124 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF, FaApple, FaEnvelope, FaLock } from "react-icons/fa";
-
-const globalStyles = document.createElement("style");
-globalStyles.innerHTML = `
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden; 
-    width: 100%;
-    height: 100%;
-  }
-`;
-document.head.appendChild(globalStyles);
+import { FaFacebookF, FaApple, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { t } from "../i18n";
+import { useIdioma } from "./context/IdiomaContext";
+import axios from "axios";
 
 interface LoginScreenProps {
-  onLogin: (correo: string, contrasena: string) => void;
   mostrarRegistro: () => void;
+  onLoginExitoso: (usuario: any) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, mostrarRegistro }) => {
+const API_URL = "http://localhost:5000/api/auth";
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ mostrarRegistro, onLoginExitoso }) => {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useIdioma();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(correo, contrasena);
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/login`, {
+        correo_electronico: correo,
+        contrasena,
+      });
+
+      if (response.data.usuario) {
+        onLoginExitoso(response.data.usuario);
+      } else {
+        setError(response.data.message || "Usuario o contraseña incorrecta");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Usuario o contraseña incorrecta");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={wrapperStyle}>
       <div style={glassContainer}>
-        <h2 style={titleStyle}>Bienvenido a Huellitas</h2>
-        <p style={subtitleStyle}>Inicia sesión para continuar</p>
+        <h2 style={titleStyle}>{t("Bienvenido a Huellitas")}</h2>
+        <p style={subtitleStyle}>{t("Inicia sesión para continuar")}</p>
 
         <form onSubmit={handleLogin} style={formStyle}>
-          <InputIcon
-            icon={<FaEnvelope />}
-            placeholder="Correo Electrónico"
-            value={correo}
-            onChange={setCorreo}
-            type="email"
-          />
-          <InputIcon
-            icon={<FaLock />}
-            placeholder="Contraseña"
-            value={contrasena}
-            onChange={setContrasena}
-            type="password"
-          />
-          <button type="submit" style={buttonStyle}>
-            Iniciar Sesión
+          <div style={inputGroup}>
+            <FaEnvelope style={{ color: "#000" }} />
+            <input
+              type="email"
+              placeholder={t("Correo Electrónico")}
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              style={inputStyle}
+              required
+            />
+          </div>
+
+          <div style={{ ...inputGroup, position: "relative" }}>
+            <FaLock style={{ color: "#000" }} />
+            <input
+              type={mostrarContrasena ? "text" : "password"}
+              placeholder={t("Contraseña")}
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              style={{ ...inputStyle, paddingRight: "2rem" }}
+              required
+            />
+            <span
+              style={eyeIconStyle}
+              onClick={() => setMostrarContrasena(!mostrarContrasena)}
+            >
+              {mostrarContrasena ? <FaEyeSlash /> : <FaEye />}
+            </span>
+          </div>
+
+          {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
+
+          <button type="submit" style={buttonStyle} disabled={loading}>
+            {loading ? "Cargando..." : t("Iniciar Sesión")}
           </button>
         </form>
 
-        <p style={socialTextStyle}>O inicia sesión con</p>
-
+        <p style={socialTextStyle}>{t("O inicia sesión con")}</p>
         <div style={socialContainerStyle}>
           <a href="https://accounts.google.com/signin" target="_blank" rel="noopener noreferrer">
             <FcGoogle style={{ fontSize: 30 }} />
           </a>
-          <a
-            href="https://www.facebook.com/login/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#3967c1ff" }}
-          >
+          <a href="https://www.facebook.com/login/" target="_blank" rel="noopener noreferrer" style={{ color: "#3967c1ff" }}>
             <FaFacebookF style={{ fontSize: 28 }} />
           </a>
-          <a
-            href="https://appleid.apple.com/sign-in"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#000" }}
-          >
+          <a href="https://appleid.apple.com/sign-in" target="_blank" rel="noopener noreferrer" style={{ color: "#000" }}>
             <FaApple style={{ fontSize: 30 }} />
           </a>
         </div>
 
         <p style={footerTextStyle}>
-          ¿No tienes cuenta?{" "}
-          <button onClick={mostrarRegistro} style={linkStyle}>
-            Crear cuenta
-          </button>
+          {t("¿No tienes cuenta?")}{" "}
+          <button onClick={mostrarRegistro} style={linkStyle}>{t("Crear cuenta")}</button>
         </p>
       </div>
     </div>
   );
 };
 
-const InputIcon: React.FC<{
-  icon: React.ReactNode;
-  placeholder: string;
-  value: string;
-  onChange: (val: string) => void;
-  type?: string;
-}> = ({ icon, placeholder, value, onChange, type = "text" }) => (
-  <div style={inputGroup}>
-    {icon}
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={inputStyle}
-      required
-    />
-  </div>
-);
-
-{/* Estilos */}
 const wrapperStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  width: "100vw",
+  width: "100%",
   height: "100vh",
+  overflow: "hidden", 
   fontFamily: "Poppins, sans-serif",
-  backgroundImage: `url("src/assets/LG.jpeg")`,
+  backgroundImage: 'url("src/assets/LG.jpeg")',
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
@@ -125,121 +126,31 @@ const wrapperStyle: React.CSSProperties = {
 
 const glassContainer: React.CSSProperties = {
   width: "90%",
-  maxWidth: 400,
+  maxWidth: 370,
+  maxHeight: "95vh", // evita scroll vertical externo
+  overflowY: "auto", // scroll interno si hace falta
   textAlign: "center",
-  background: "rgba(255, 255, 255, 0.1)", 
+  background: "rgba(255, 255, 255, 0.1)",
   borderRadius: "1.25rem",
-  padding: "3rem 2rem",
-  backdropFilter: "blur(12px)",
-  color: "#ffffffff",
+  padding: "2rem 1rem",
+  backdropFilter: "blur(5px)",
+  color: "#000",
   boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: "2rem",
-  fontWeight: 700,
-  marginBottom: 10,
-  color: "#090808ff",
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: "1rem",
-  marginBottom: 25,
-  color: "#393838ff",
-};
-
-const formStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
-  gap: 15,
-};
-
-const inputGroup: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: "0.6rem",
-  padding: "0.6rem 0.8rem",
-  borderRadius: "0.625rem",
-  backgroundColor: "rgba(255,255,255,0.2)",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  border: "none",
-  outline: "none",
-  background: "transparent",
-  color: "#fff",
-  fontSize: "1rem",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "12px 0",
-  borderRadius: 10,
-  border: "none",
-  background: "linear-gradient(90deg, #5f5757ff, #c59526ff)",
-  color: "#fff",
-  fontWeight: 600,
-  fontSize: "1rem",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-};
-
-const socialTextStyle: React.CSSProperties = {
-  color: "#fffbfbff",
-  margin: "15px 0 10px",
-  fontSize: 14,
-};
-
-const socialContainerStyle: React.CSSProperties = {
-  display: "flex",
   justifyContent: "center",
-  gap: 25,
-  marginBottom: 20,
 };
 
-const footerTextStyle: React.CSSProperties = {
-  color: "#0b0b0bff",
-  fontSize: 14,
-};
-
-const linkStyle: React.CSSProperties = {
-  background: "none",
-  border: "none",
-  color: "#000000ff",
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: 14,
-};
-
-{/* Media queries para responsiveness */}
-const mediaQuery = `
-@media (max-width: 1024px) {
-  div[style*="backdrop-filter"] {
-    width: 85%;
-    padding: 2.5rem 1.5rem;
-  }
-  input { font-size: 0.95rem; }
-  button { font-size: 0.95rem; }
-}
-@media (max-width: 768px) {
-  div[style*="backdrop-filter"] {
-    width: 90%;
-    padding: 2rem 1rem;
-  }
-  input { font-size: 0.9rem; }
-  button { font-size: 0.9rem; }
-}
-@media (max-width: 480px) {
-  div[style*="backdrop-filter"] {
-    width: 95%;
-    padding: 1.5rem 1rem;
-  }
-  input { font-size: 0.85rem; }
-  button { font-size: 0.85rem; }
-}
-`;
-const style = document.createElement("style");
-style.innerHTML = mediaQuery;
-document.head.appendChild(style);
+const titleStyle: React.CSSProperties = { fontSize: "2rem", fontWeight: 600, marginBottom: 10, color: "#090808ff" };
+const subtitleStyle: React.CSSProperties = { fontSize: "1rem", marginBottom: 15, color: "#393838ff" };
+const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 14 };
+const inputGroup: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.5rem 0.8rem", borderRadius: "0.625rem", backgroundColor: "rgba(255,255,255,0.2)" };
+const inputStyle: React.CSSProperties = { width: "100%", border: "none", outline: "none", background: "transparent", color: "#000", fontSize: "1rem" };
+const eyeIconStyle: React.CSSProperties = { position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", cursor: "pointer", color: "#fdfdfd1e" };
+const buttonStyle: React.CSSProperties = { padding: "12px 0", borderRadius: 10, border: "none", background: "linear-gradient(90deg, #5f5757ff, #c59526ff)", color: "#fff", fontWeight: 600, fontSize: "1rem", cursor: "pointer", transition: "all 0.3s ease",  } ;
+const socialTextStyle: React.CSSProperties = { color: "#000", margin: "15px 0 10px", fontSize: 15 };
+const socialContainerStyle: React.CSSProperties = { display: "flex", justifyContent: "center", gap: 25, marginBottom: 20 };
+const footerTextStyle: React.CSSProperties = { color: "#0b0b0b", fontSize: 14 };
+const linkStyle: React.CSSProperties = { background: "none", border: "none", color: "#000", cursor: "pointer", fontWeight: "bold", fontSize: 14 };
 
 export default LoginScreen;
