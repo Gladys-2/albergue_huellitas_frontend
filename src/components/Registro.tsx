@@ -10,6 +10,9 @@ import {
 } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { MdPhoneIphone } from "react-icons/md";
+import { t } from "../i18n";
+import { useIdioma } from "../components/context/IdiomaContext";
+
 
 interface RegistroProps {
   mostrarLogin: () => void;
@@ -26,6 +29,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
   const [confirmarContrasena, setConfirmarContrasena] = useState("");
   const [genero, setGenero] = useState("");
 
+  useIdioma();
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault();
     if (contrasena !== confirmarContrasena) {
@@ -62,7 +66,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
     };
 
     try {
-      const respuesta = await fetch("http://localhost:5000/api/usuarios", {
+      const respuesta = await fetch("http://localhost:5000/api/usuarios/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevoUsuario),
@@ -94,8 +98,8 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
       <style>
         {`
           .input-placeholder::placeholder {
-            color: #ffffffff; 
-            opacity: 1;     
+            color: #000000ff; 
+            opacity: 3;     
           }
           @media (max-width: 768px) {
             .fila {
@@ -108,16 +112,16 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
 
       <div style={glassContainer}>
         <h2 style={titleStyle}>
-          <FaUserShield style={{ marginRight: 8 }} />
-          Registro de Usuario
+          <FaUserShield style={{ marginRight: 11 }} />
+          {t("Registro de Usuario")}
         </h2>
-        <p style={subtitleStyle}>Bienvenido a Huellitas</p>
+        <p style={subtitleStyle}>{t("Bienvenido a Huellitas")}</p>
 
         <form onSubmit={handleRegistro} style={formStyle}>
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaUser />}
-              placeholder="Nombre"
+              placeholder={t("Nombre")}
               value={nombre}
               onChange={(val) => {
                 if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setNombre(val);
@@ -125,7 +129,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
             />
             <InputIcon
               icon={<FaUser />}
-              placeholder="Apellido Paterno"
+              placeholder={t("Apellido Paterno")}
               value={apellidoPaterno}
               onChange={(val) => {
                 if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setApellidoPaterno(val);
@@ -133,7 +137,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
             />
             <InputIcon
               icon={<FaUser />}
-              placeholder="Apellido Materno"
+              placeholder={t("Apellido Materno")}
               value={apellidoMaterno}
               onChange={(val) => {
                 if (/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$/.test(val)) setApellidoMaterno(val);
@@ -144,7 +148,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaIdCard />}
-              placeholder="Cédula de Identidad"
+              placeholder={t("Cédula de Identidad")}
               value={cedulaIdentidad}
               onChange={(val) => {
                 if (/^\d{0,8}$/.test(val)) setCedulaIdentidad(val);
@@ -157,7 +161,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
               <MdPhoneIphone style={{ fontSize: 20, color: "#000000ff" }} />
               <input
                 type="text"
-                placeholder="Número (8 dígitos)"
+                placeholder={t("Número (8 dígitos)")}
                 value={telefono}
                 onChange={(e) => {
                   const valor = e.target.value;
@@ -170,7 +174,7 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
             </div>
             <InputIcon
               icon={<FaEnvelope />}
-              placeholder="Correo Electrónico"
+              placeholder={t("Correo Electrónico")}
               value={correoElectronico}
               onChange={setCorreoElectronico}
               type="email"
@@ -180,14 +184,14 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
           <div style={filaStyle} className="fila">
             <InputIcon
               icon={<FaLock />}
-              placeholder="Contraseña"
+              placeholder={t("Contraseña")}
               value={contrasena}
               onChange={setContrasena}
               type="password"
             />
             <InputIcon
               icon={<FaLock />}
-              placeholder="Confirmar Contraseña"
+              placeholder={t("Confirmar Contraseña")}
               value={confirmarContrasena}
               onChange={setConfirmarContrasena}
               type="password"
@@ -198,19 +202,19 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
               style={selectStyle}
               required
             >
-              <option value="">Selecciona género</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Otro">Otro</option>
+              <option value="">{t("Selecciona género")}</option>
+              <option value={t("Masculino")}>Masculino</option>
+              <option value={t("Femenino")}>Femenino</option>
+              <option value={t("Otro")}>Otro</option>
             </select>
           </div>
 
           <button type="submit" style={buttonStyle}>
-            Crear cuenta
+            {t("Crear cuenta")}
           </button>
         </form>
 
-        <p style={socialTextStyle}>O regístrate con</p>
+        <p style={socialTextStyle}>{t("O regístrate con")}</p>
         <div style={socialContainerStyle}>
           <a
             href="https://accounts.google.com/signin"
@@ -238,9 +242,9 @@ const Registro: React.FC<RegistroProps> = ({ mostrarLogin }) => {
         </div>
 
         <p style={footerTextStyle}>
-          ¿Ya tienes cuenta?{" "}
+          {t("¿Ya tienes cuenta?")}{" "}
           <button onClick={mostrarLogin} style={linkStyle}>
-            Inicia sesión
+            {t(" Inicia sesión")}
           </button>
         </p>
       </div>
@@ -274,7 +278,7 @@ const wrapperStyle: React.CSSProperties = {
   justifyContent: "center",
   alignItems: "center",
   minHeight: "100vh",
-  width: "100vw",
+  width: "99vw",
   fontFamily: "Poppins, sans-serif",
   backgroundImage: `url("src/assets/LOGIN.jpeg")`,
   backgroundSize: "cover",
@@ -285,12 +289,12 @@ const wrapperStyle: React.CSSProperties = {
 };
 
 const glassContainer: React.CSSProperties = {
-  background: "rgba(92, 90, 107, 0.25)",
+  background: "rgba(245, 244, 244, 0.12)",
   borderRadius: 10,
   padding: "9px 15px",
-  boxShadow: "0 5px 15px rgba(0,0,0,0.25)",
-  border: "2px solid rgba(240,240,240,0.3)",
-  color: "#ffffffff",
+  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.15)",
+  border: "2px solid rgba(219, 117, 38, 0.45)",
+  color: "#020202ff",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
@@ -368,7 +372,7 @@ const buttonStyle: React.CSSProperties = {
   border: "none",
   background: "linear-gradient(90deg, #222, #b49217ff)",
   color: "#fff",
-  fontWeight:  500,
+  fontWeight: 500,
   fontSize: "1rem",
   cursor: "pointer",
   transition: "all 0.3s ease",
@@ -416,7 +420,7 @@ const phoneGroupStyle: React.CSSProperties = {
 };
 
 const prefixButton: React.CSSProperties = {
-  backgroundColor: "#c5c026",
+  backgroundColor: "#d77b1793",
   color: "#000",
   border: "none",
   borderRadius: 8,
