@@ -1,4 +1,7 @@
 export interface Usuario {
+  email: any;
+  correo: any;
+  avatarUrl: string;
   id?: number;
   nombre: string;
   apellido_paterno: string;
