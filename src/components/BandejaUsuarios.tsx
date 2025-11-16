@@ -1,26 +1,24 @@
 import React from "react";
-import { FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaEdit, FaToggleOn, FaToggleOff } from "react-icons/fa";
 import type { Usuario } from "../types/types";
 
 interface BandejaUsuariosProps {
   usuarios: Usuario[];
   onEdit: (usuario: Usuario) => void;
-  onEliminar: (id: number) => void;
+  onToggle: (usuario: Usuario) => void;
   sidebarWidth?: number;
-  rolActual: "usuario" | "administrador"; 
+  rolActual: "usuario" | "administrador";
 }
 
-const roleColors: { [key in "usuario" | "administrador" | "voluntario" | "adoptante" | "donante"]?: string } = {
+const roleColors: { [key in "usuario" | "administrador"]?: string } = {
   administrador: "#020c0fff",
-  voluntario: "#2e86c1",
-  adoptante: "#f39c12",
-  donante: "#27ae60",
+  usuario: "#f39c12",
 };
 
 const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
   usuarios,
   onEdit,
-  onEliminar,
+  onToggle,
   sidebarWidth = 0,
   rolActual,
 }) => {
@@ -46,8 +44,6 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
           <tr style={theadTrStyle}>
             <th style={thStyle}>Nombre</th>
             <th style={thStyle}>Apellido</th>
-            <th style={thStyle}>Cédula</th>
-            <th style={thStyle}>Teléfono</th>
             <th style={thStyle}>Correo</th>
             <th style={thStyle}>Rol</th>
             <th style={thStyle}>Estado</th>
@@ -56,17 +52,13 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
         </thead>
         <tbody>
           {usuarios.map((u, idx) => {
-            
-            const idUsuario: number = u.id as number;
-            const rolUsuario: "usuario" | "administrador" = (u.rol ?? "usuario") as "usuario" | "administrador";
-            const estadoUsuario: "Activo" | "Inactivo" = (u.estado ?? "Activo") as "Activo" | "Inactivo";
+            const rolUsuario = u.rol ?? "usuario";
+            const estadoUsuario = u.estado ?? "Activo";
 
             return (
-              <tr key={idUsuario} style={idx % 2 === 0 ? trEvenStyle : trOddStyle}>
+              <tr key={u.id} style={idx % 2 === 0 ? trEvenStyle : trOddStyle}>
                 <td style={tdStyle}>{u.nombre}</td>
                 <td style={tdStyle}>{u.apellido_paterno}</td>
-                <td style={tdStyle}>{u.cedula_identidad ?? "N/A"}</td>
-                <td style={tdStyle}>{u.telefono ?? "N/A"}</td>
                 <td style={tdStyle}>{u.correo_electronico}</td>
                 <td
                   style={{
@@ -77,13 +69,7 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
                 >
                   {rolUsuario}
                 </td>
-                <td style={tdStyle}>
-                  {estadoUsuario === "Activo" ? (
-                    <FaCheckCircle style={{ color: "#1bcc65ff", fontSize: 18 }} title="Activo" />
-                  ) : (
-                    <FaTimesCircle style={{ color: "#e74c3c", fontSize: 18 }} title="Inactivo" />
-                  )}
-                </td>
+                <td style={tdStyle}>{estadoUsuario}</td>
                 {esAdmin && (
                   <td style={tdActionsStyle}>
                     <FaEdit
@@ -91,11 +77,17 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
                       title="Editar"
                       onClick={() => onEdit(u)}
                     />
-                    <FaTrash
-                      style={iconStyle("#e74c3c")}
-                      title="Eliminar"
-                      onClick={() => onEliminar(idUsuario)}
-                    />
+                    <span
+                      onClick={() => onToggle(u)}
+                      style={{ cursor: "pointer" }}
+                      title={estadoUsuario === "Activo" ? "Desactivar" : "Activar"}
+                    >
+                      {estadoUsuario === "Activo" ? (
+                        <FaToggleOn style={toggleStyle("#1bcc65ff")} />
+                      ) : (
+                        <FaToggleOff style={toggleStyle("#e74c3c")} />
+                      )}
+                    </span>
                   </td>
                 )}
               </tr>
@@ -107,13 +99,43 @@ const BandejaUsuarios: React.FC<BandejaUsuariosProps> = ({
   );
 };
 
-const tableStyle: React.CSSProperties = { width: "95%",margin: "0 auto",borderCollapse: "separate",borderSpacing: 0,boxShadow: "0 6px 20px rgba(0,0,0,0.1)",borderRadius: 12,backgroundColor: "#fff",};
-const theadTrStyle: React.CSSProperties = { backgroundColor: "#d5c42cff", color: "#fff", textAlign: "center", height: 50 };
-const thStyle: React.CSSProperties = { padding: "12px", borderBottom: "2px solid #73610fff", fontWeight: "bold", textAlign: "center" };
+const tableStyle: React.CSSProperties = {
+  width: "95%",
+  margin: "0 auto",
+  borderCollapse: "separate",
+  borderSpacing: 0,
+  boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+  borderRadius: 12,
+  backgroundColor: "#fff",
+};
+const theadTrStyle: React.CSSProperties = {
+  backgroundColor: "#d59f2cff",
+  color: "#fff",
+  textAlign: "center",
+  height: 50,
+};
+const thStyle: React.CSSProperties = {
+  padding: "12px",
+  borderBottom: "2px solid #73610fff",
+  fontWeight: "bold",
+  textAlign: "center",
+};
 const tdStyle: React.CSSProperties = { padding: "12px", textAlign: "center", verticalAlign: "middle" };
-const tdActionsStyle: React.CSSProperties = { ...tdStyle, display: "flex", justifyContent: "center", gap: 10 };
+const tdActionsStyle: React.CSSProperties = { ...tdStyle, display: "flex", justifyContent: "center", gap: 12 };
 const trEvenStyle: React.CSSProperties = { backgroundColor: "#f9f9f9" };
 const trOddStyle: React.CSSProperties = { backgroundColor: "#e6f0fa" };
-const iconStyle = (color: string): React.CSSProperties => ({ cursor: "pointer", fontSize: 18, color, padding: 6, borderRadius: 8, transition: "all 0.3s ease", backgroundColor: "#f5f5f5", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" });
+const iconStyle = (color: string): React.CSSProperties => ({
+  cursor: "pointer",
+  fontSize: 20,
+  color,
+  padding: 6,
+  borderRadius: 8,
+  transition: "all 0.3s ease",
+});
+const toggleStyle = (color: string): React.CSSProperties => ({
+  fontSize: 28,
+  color,
+  transition: "all 0.3s ease",
+});
 
 export default BandejaUsuarios;
