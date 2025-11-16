@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { t, getIdioma, setIdioma as cambiarIdiomaGlobal } from "../i18n";
+import React, { useState, useEffect, type CSSProperties } from "react";
 import type { Usuario } from "../types/types";
+import { useIdioma } from "./context/IdiomaContext";
+import { t } from "../i18n";
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -8,56 +9,80 @@ interface NavbarProps {
   usuario: Usuario;
 }
 
-const banderaBO =
-  "https://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Bolivia.svg";
-const banderaUS =
-  "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg";
-const iconoLupa =
-  "https://cdn-icons-png.flaticon.com/512/2811/2811806.png";
+const banderaBO = "https://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Bolivia.svg";
+const banderaUS = "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg";
+const iconoLupa = "https://cdn-icons-png.flaticon.com/512/2811/2811806.png";
+
+const coloresIniciales: Record<string, string> = {
+  A: "#FF4500",
+  B: "#FF6347",
+  C: "#FF7F50",
+  D: "#FF8C00",
+  E: "#FFA500",
+  F: "#FFB347",
+  G: "#FF8C69",
+  H: "#FF6F61",
+  I: "#FF7256",
+  J: "#FF4500",
+  K: "#FF6347",
+  L: "#FF7F50",
+  M: "#FF8C00",
+  N: "#FFA500",
+  O: "#FFB347",
+  P: "#FF8C69",
+  Q: "#FF6F61",
+  R: "#FF7256",
+  S: "#FF4500",
+  T: "#FF6347",
+  U: "#FF7F50",
+  V: "#FF8C00",
+  W: "#FFA500",
+  X: "#FFB347",
+  Y: "#FF8C69",
+  Z: "#FF6F61",
+};
 
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [idioma, setIdioma] = useState(getIdioma());
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const { idioma, cambiarIdioma } = useIdioma(); 
   const [searchOpen, setSearchOpen] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filtros, setFiltros] = useState({
     especie: "",
     estado: "",
     sexo: "",
     tamano: "",
-    ubicacion: "lapaz",
+    ubicacion: "",
   });
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleCambiarIdioma = () => {
-    const nuevoIdioma = idioma === "es" ? "en" : "es";
-    cambiarIdiomaGlobal(nuevoIdioma);
-    setIdioma(nuevoIdioma);
-  };
-
-  const handleFilterChange = (field: string, value: string) => {
-    setFilters({ ...filters, [field]: value });
-  };
-
-  const handleSearch = () => {
-    console.log("Buscar con filtros:", filters);
-    setSearchOpen(false);
-  };
-
+  const isMobile = windowWidth < 768;
   const sidebarWidth = collapsed ? 70 : 220;
-  const headerStyle: React.CSSProperties = isMobile
-    ? { left: 0, width: "100%" }
-    : { left: sidebarWidth, right: 0 };
 
-  const getIniciales = (nombre: string) => {
-    const nombres = nombre.trim().split(" ");
-    if (nombres.length === 1) return nombres[0].charAt(0).toUpperCase();
-    return nombres[0].charAt(0).toUpperCase() + nombres[1].charAt(0).toUpperCase();
+  const handleFiltroChange = (campo: string, valor: string) => {
+    setFiltros({ ...filtros, [campo]: valor });
   };
+
+  const headerStyle: CSSProperties = { left: isMobile ? 0 : sidebarWidth, right: 0 };
+
+  const getIniciales = (usuario?: Usuario) => {
+    if (!usuario || !usuario.nombre) return "U";
+    const nombre = usuario.nombre.trim();
+    const apellido = usuario.apellido_paterno?.trim() ?? "";
+    return nombre.charAt(0).toUpperCase() + (apellido ? apellido.charAt(0).toUpperCase() : "");
+  };
+
+  const obtenerColorInicial = (letra: string) => {
+    return coloresIniciales[letra.toUpperCase()] || "#FF4500";
+  };
+
+  const iniciales = getIniciales(usuario);
+  const color1 = obtenerColorInicial(iniciales.charAt(0));
+  const color2 = obtenerColorInicial(iniciales.charAt(1) || iniciales.charAt(0));
 
   return (
     <header
@@ -68,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) =>
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "linear-gradient(135deg, #FFA726, #FFD54F, #F48FB1)",
+        background: "linear-gradient(90deg, #f6d365, #fda085)",
         padding: "0 1rem",
         boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
         zIndex: 300,
@@ -78,23 +103,13 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) =>
         color: "#fff",
       }}
     >
-      {/* Botón Sidebar + Título */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-          marginLeft: collapsed ? 10 : 20,
-          flex: "1 1 auto",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: "1 1 auto" }}>
         <button
           onClick={toggleSidebar}
-          aria-label="toggle sidebar"
           style={{
             fontSize: 20,
             background: "#fff",
-            color: "#000000ff",
+            color: "#000",
             border: "none",
             borderRadius: 8,
             padding: "6px 10px",
@@ -104,40 +119,28 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) =>
         >
           ☰
         </button>
-
-        <h1
-          style={{
-            margin: 0,
-            fontWeight: "bold",
-            fontSize: 20,
-            color: "#fff",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
+        <h1 style={{ margin: 0, fontWeight: "bold", fontSize: 20, color: "#fff" }}>
           {t("huellitas")}
         </h1>
       </div>
 
-      {/* Parte derecha */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
           flex: "1 1 auto",
-          justifyContent: isMobile ? "flex-end" : "flex-end",
-          marginTop: isMobile ? 8 : 0,
+          justifyContent: "flex-end",
+          flexWrap: "wrap",
+          position: "relative",
         }}
       >
-        {/* Avatar iniciales */}
         <div
           style={{
             width: 36,
             height: 36,
             borderRadius: "50%",
-            background: "#000000ff",
+            background: `linear-gradient(135deg, ${color1}, ${color2})`,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -146,36 +149,43 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) =>
             fontSize: 14,
           }}
         >
-          {usuario.nombre ? getIniciales(usuario.nombre) : "U"}
+          {iniciales}
         </div>
-
-        <small
-          style={{
-            fontSize: 11,
-            color: "#fff",
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-          }}
-        >
+        <small style={{ fontSize: 11, color: "#fff", fontWeight: 600, whiteSpace: "nowrap" }}>
           {usuario.nombre || t("usuario")}
         </small>
 
-        {/* Bandera idioma */}
-        <img
-          src={idioma === "es" ? banderaBO : banderaUS}
-          alt="idioma"
-          onClick={handleCambiarIdioma}
-          width={32}
-          style={{
-            cursor: "pointer",
-            borderRadius: 6,
-            border: "2px solid #fff",
-            transition: "0.25s",
-          }}
-          title={idioma === "es" ? t("cambiar_ingles") : t("cambiar_espanol")}
-        />
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <img
+            src={banderaBO}
+            alt="Español"
+            onClick={() => cambiarIdioma("es")}
+            width={32}
+            style={{
+              cursor: "pointer",
+              borderRadius: 6,
+              border: idioma === "es" ? "2px solid #080808ff" : "2px solid #fff",
+              transition: "all 0.25s",
+              transform: idioma === "es" ? "scale(1.1)" : "scale(1)",
+            }}
+            title={t("cambiar_espanol")}
+          />
+          <img
+            src={banderaUS}
+            alt="English"
+            onClick={() => cambiarIdioma("en")}
+            width={32}
+            style={{
+              cursor: "pointer",
+              borderRadius: 5,
+              border: idioma === "en" ? "3px solid #e62caeff" : "2px solid #fff",
+              transition: "all 0.35s",
+              transform: idioma === "en" ? "scale(1.1)" : "scale(1)",
+            }}
+            title={t("cambiar_ingles")}
+          />
+        </div>
 
-        {/* Lupa */}
         <div
           onClick={() => setSearchOpen(!searchOpen)}
           style={{
@@ -187,112 +197,104 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, collapsed, usuario }) =>
             justifyContent: "center",
             alignItems: "center",
             cursor: "pointer",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.25)",
             transition: "0.3s",
           }}
         >
           <img src={iconoLupa} alt="buscar" width={18} height={18} />
         </div>
-      </div>
 
-      {/* Panel búsqueda */}
-      {searchOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: 70,
-            right: isMobile ? 5 : 10,
-            width: isMobile ? "95%" : 360,
-            background: "#fff",
-            padding: 15,
-            borderRadius: 12,
-            boxShadow: "0 4px 15px rgba(0,0,0,0.25)",
-            zIndex: 400,
-            color: "#000",
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {["especie", "estado", "sexo", "tamano", "ubicacion"].map((field) => (
-              <label key={field} style={{ fontWeight: 600 }}>
-                {t(field)}:
-                <select
-                  value={(filters as any)[field]}
-                  onChange={(e) => handleFilterChange(field, e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: 6,
-                    borderRadius: 6,
-                    marginTop: 3,
-                  }}
-                >
-                  <option value="">{t("todos")}</option>
-                  {field === "especie" &&
-                    ["perro", "gato", "conejo", "hamster"].map((opt) => (
-                      <option key={opt} value={opt}>
-                        {t(opt)}
-                      </option>
-                    ))}
-                  {field === "estado" &&
-                    ["disponible", "urgente", "invisible"].map((opt) => (
-                      <option key={opt} value={opt}>
-                        {t(opt)}
-                      </option>
-                    ))}
-                  {field === "sexo" &&
-                    ["macho", "hembra"].map((opt) => (
-                      <option key={opt} value={opt}>
-                        {t(opt)}
-                      </option>
-                    ))}
-                  {field === "tamano" &&
-                    ["mini", "pequeno", "mediano", "grande", "gigante"].map((opt) => (
-                      <option key={opt} value={opt}>
-                        {t(opt)}
-                      </option>
-                    ))}
-                  {field === "ubicacion" && (
-                    <option value="lapaz">{t("lapaz")}</option>
-                  )}
-                </select>
-              </label>
-            ))}
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
+        {searchOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: 45,
+              right: 0,
+              background: "linear-gradient(90deg, #f6d365, #fda085)",
+              color: "#fff",
+              padding: "1rem",
+              borderRadius: 8,
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+              zIndex: 400,
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+              minWidth: 220,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button
                 onClick={() => setSearchOpen(false)}
                 style={{
-                  padding: "8px 14px",
-                  borderRadius: 6,
+                  background: "rgba(255,255,255,0.2)",
                   border: "none",
-                  background: "#ff4f4f",
                   color: "#fff",
-                  fontWeight: 600,
+                  fontWeight: "bold",
+                  borderRadius: 6,
                   cursor: "pointer",
-                  boxShadow: "0 0 6px #ff4f4fAA",
+                  padding: "2px 6px",
+                  fontSize: 14,
                 }}
               >
-                {t("cerrar")}
-              </button>
-
-              <button
-                onClick={handleSearch}
-                style={{
-                  padding: "8px 14px",
-                  borderRadius: 6,
-                  border: "none",
-                  background: "#f49003ff",
-                  color: "#fff",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  boxShadow: "0 0 6px #f3e7aeaa",
-                }}
-              >
-                {t("buscar")}
+                X
               </button>
             </div>
+
+            <select onChange={(e) => handleFiltroChange("especie", e.target.value)} value={filtros.especie} style={{ padding: "6px", borderRadius: 6, border: "none" }}>
+              <option value="">{t("especie")}</option>
+              <option value="perro">{t("perro")}</option>
+              <option value="gato">{t("gato")}</option>
+              <option value="conejo">{t("conejo")}</option>
+              <option value="hamster">{t("hamster")}</option>
+            </select>
+
+            <select onChange={(e) => handleFiltroChange("estado", e.target.value)} value={filtros.estado} style={{ padding: "6px", borderRadius: 6, border: "none" }}>
+              <option value="">{t("estado")}</option>
+              <option value="disponible">{t("disponible")}</option>
+              <option value="urgente">{t("urgente")}</option>
+              <option value="invisible">{t("invisible")}</option>
+            </select>
+
+            <select onChange={(e) => handleFiltroChange("sexo", e.target.value)} value={filtros.sexo} style={{ padding: "6px", borderRadius: 6, border: "none" }}>
+              <option value="">{t("sexo")}</option>
+              <option value="macho">{t("macho")}</option>
+              <option value="hembra">{t("hembra")}</option>
+            </select>
+
+            <select onChange={(e) => handleFiltroChange("tamano", e.target.value)} value={filtros.tamano} style={{ padding: "6px", borderRadius: 6, border: "none" }}>
+              <option value="">{t("tamano")}</option>
+              <option value="mini">{t("mini")}</option>
+              <option value="pequeno">{t("pequeno")}</option>
+              <option value="mediano">{t("mediano")}</option>
+              <option value="grande">{t("grande")}</option>
+              <option value="gigante">{t("gigante")}</option>
+            </select>
+
+            <select onChange={(e) => handleFiltroChange("ubicacion", e.target.value)} value={filtros.ubicacion} style={{ padding: "6px", borderRadius: 6, border: "none" }}>
+              <option value="">{t("ubicacion")}</option>
+              <option value="lapaz">{t("lapaz")}</option>
+            </select>
+
+            <button
+              onClick={() => console.log(filtros)}
+              style={{
+                marginTop: "0.5rem",
+                background: "#fff",
+                color: "#f6d365",
+                border: "none",
+                padding: "8px",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontWeight: "bold",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                transition: "0.25s",
+              }}
+            >
+              {t("buscar")}
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };
