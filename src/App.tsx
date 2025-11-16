@@ -17,10 +17,11 @@ import Configuracion from "./components/pages/Configuracion";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { IdiomaProvider } from "./components/context/IdiomaContext";
 
 type UsuarioModal = Omit<Usuario, "avatarUrl"> & { id?: number; contrasena?: string };
 
-type Pantalla = 
+type Pantalla =
   | "login"
   | "registro"
   | "dashboard"
@@ -34,9 +35,12 @@ type Pantalla =
   | "configuracion"
   | "salir";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const App: React.FC = () => {
   const [pantalla, setPantalla] = useState<Pantalla>("login");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -45,6 +49,17 @@ const App: React.FC = () => {
   const [mostrar, setMostrar] = useState<number>(10);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(true);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const irLogin = () => setPantalla("login");
   const irRegistro = () => setPantalla("registro");
   const irDashboard = () => setPantalla("dashboard");
@@ -57,12 +72,18 @@ const App: React.FC = () => {
   const irReportes = () => setPantalla("reportes");
   const irConfiguracion = () => setPantalla("configuracion");
 
+  const handleLoginExitoso = (usuario: Usuario) => {
+    setUsuarioActual(usuario);
+    irInicio();
+  };
+
   const cargarUsuarios = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/usuarios");
+      const res = await axios.get(`${API_URL}/usuarios`);
       setUsuarios(res.data);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
+      alert("No se pudo cargar la lista de usuarios.");
     }
   };
 
@@ -70,23 +91,7 @@ const App: React.FC = () => {
     if (pantalla === "usuarios") cargarUsuarios();
   }, [pantalla]);
 
-  const handleLogin = async (correo: string, contrasena: string) => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        correo_electronico: correo,
-        contrasena,
-      });
-      setUsuarioActual(res.data.usuario);
-      irDashboard();
-    } catch (error: any) {
-      if (error.response) {
-        alert(error.response.data.message || "Usuario o contraseña incorrecta");
-      } else {
-        alert("Error de conexión con el servidor");
-      }
-    }
-  };
-
+  
   const handleGuardar = async (usuario: UsuarioModal) => {
     try {
       if (usuario.id) {
@@ -101,21 +106,16 @@ const App: React.FC = () => {
           genero: usuario.genero,
           estado: usuario.estado,
         };
-
         if (usuario.contrasena) usuarioActualizar.contrasena = usuario.contrasena;
 
-        await axios.put(
-          `http://localhost:5000/api/usuarios/actualizar-usuario/${usuario.id}`,
-          usuarioActualizar
-        );
+        await axios.put(`${API_URL}/usuarios/actualizar-usuario/${usuario.id}`, usuarioActualizar);
       } else {
         if (!usuario.contrasena) {
           alert("La contraseña es obligatoria al crear un usuario.");
           return;
         }
-        await axios.post("http://localhost:5000/api/usuarios/crear-usuario", usuario);
+        await axios.post(`${API_URL}/usuarios/crear-usuario`, usuario);
       }
-
       setMostrarModal(false);
       setUsuarioEditar(null);
       cargarUsuarios();
@@ -130,15 +130,13 @@ const App: React.FC = () => {
     setMostrarModal(true);
   };
 
-  const handleEliminar = async (id: number) => {
-    if (!window.confirm("¿Deseas eliminar este usuario?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/usuarios/eliminar-usuario/${id}`);
-      cargarUsuarios();
-    } catch (error) {
-      console.error(error);
-      alert("Error al eliminar el usuario");
-    }
+  const handleToggle = (usuario: Usuario) => {
+    const nuevosUsuarios: Usuario[] = usuarios.map(u =>
+      u.id === usuario.id
+        ? { ...u, estado: u.estado === "Activo" ? "Inactivo" : "Activo" }
+        : u
+    );
+    setUsuarios(nuevosUsuarios);
   };
 
   const exportCSV = () => {
@@ -222,7 +220,7 @@ const App: React.FC = () => {
     .slice(0, mostrar > 0 ? mostrar : usuarios.length);
 
   const styles: { [key: string]: CSSProperties } = {
-    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffff, #ffffff)" },
+    dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffffff, #ffffff)" },
     mainSection: { flex: 1, transition: "padding-left 0.3s" },
     content: { padding: "1rem", overflowY: "auto" },
     bandejaContainer: { background: "white", borderRadius: "1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "1.5rem", margin: "0 auto" },
@@ -247,100 +245,113 @@ const App: React.FC = () => {
   }, [pantalla]);
 
   return (
-    <div>
-      {pantalla === "login" && <LoginScreen onLogin={handleLogin} mostrarRegistro={irRegistro} />}
-      {pantalla === "registro" && <Registro mostrarLogin={irLogin} />}
+    <IdiomaProvider>
+      <div>
+        {pantalla === "login" && <LoginScreen mostrarRegistro={irRegistro} onLoginExitoso={handleLoginExitoso} />}
+        {pantalla === "registro" && <Registro mostrarLogin={irLogin} />}
 
-      {pantalla !== "login" && pantalla !== "registro" && usuarioActual && (
-        <div style={styles.dashboardWrapper}>
-          <Sidebar
-            collapsed={!sidebarOpen}
-            toggleSidebar={toggleSidebar}
-            setPantalla={(pant) => {
-              switch (pant.toLowerCase()) {
-                case "inicio": irInicio(); break;
-                case "dashboard": irDashboard(); break;
-                case "usuarios": irUsuarios(); break;
-                case "perros": irPerros(); break;
-                case "gatos": irGatos(); break;
-                case "adopciones": irAdopciones(); break;
-                case "voluntarios": irVoluntarios(); break;
-                case "reportes": irReportes(); break;
-                case "configuracion": irConfiguracion(); break;
-                case "salir": setPantalla("salir"); break;
-              }
-            }}
-          />
-          <div style={{ ...styles.mainSection, paddingLeft: sidebarOpen ? 220 : 70 }}>
-            <Navbar toggleSidebar={toggleSidebar} collapsed={!sidebarOpen} usuario={usuarioActual} />
-            <main style={styles.content}>
-              {pantalla === "inicio" && <Inicio />}
-              {pantalla === "usuarios" && (
-                <div style={styles.bandejaContainer}>
-                  <div style={styles.bandejaHeader}>
-                    <h1 style={styles.titulo}>Registro de Usuarios</h1>
-                    <div style={styles.accionesHeader}>
-                      <div style={styles.accionesIzquierda}>
-                        <button style={styles.btnCSV} onClick={exportCSV}>CSV</button>
-                        <button style={styles.btnExcel} onClick={exportExcel}>Excel</button>
-                        <button style={styles.btnPDF} onClick={exportPDF}>Pdf</button>
-                        <label>
-                          Mostrar:
-                          <select
-                            style={styles.selectMostrar}
-                            value={mostrar}
-                            onChange={(e) => setMostrar(Number(e.target.value))}
-                          >
-                            <option value={5}>5</option>
-                            <option value={25}>10</option>
-                            <option value={50}>25</option>
-                            <option value={100}>50</option>
-                            <option value={-1}>Todos</option>
-                          </select>
-                        </label>
+        {pantalla !== "login" && pantalla !== "registro" && usuarioActual && (
+          <div style={styles.dashboardWrapper}>
+            <Sidebar
+              collapsed={!sidebarOpen}
+              mobileOpen={sidebarOpen}
+              setMobileOpen={setSidebarOpen}
+              setPantalla={(pant) => {
+                switch (pant.toLowerCase()) {
+                  case "inicio": irInicio(); break;
+                  case "dashboard": irDashboard(); break;
+                  case "usuarios": irUsuarios(); break;
+                  case "perros": irPerros(); break;
+                  case "gatos": irGatos(); break;
+                  case "adopciones": irAdopciones(); break;
+                  case "voluntarios": irVoluntarios(); break;
+                  case "reportes": irReportes(); break;
+                  case "configuracion": irConfiguracion(); break;
+                  case "salir": setPantalla("salir"); break;
+                }
+              }}
+            />
+
+            <div
+              style={{
+                ...styles.mainSection,
+                paddingLeft: !isMobile ? (sidebarOpen ? 220 : 70) : 0,
+                transition: "padding-left 0.3s ease",
+              }}
+            >
+              <Navbar toggleSidebar={toggleSidebar} collapsed={!sidebarOpen} usuario={usuarioActual} />
+              <main style={styles.content}>
+                {pantalla === "inicio" && <Inicio />}
+                {pantalla === "usuarios" && (
+                  <div style={styles.bandejaContainer}>
+                    <div style={styles.bandejaHeader}>
+                      <h1 style={styles.titulo}>Registro de Usuarios</h1>
+                      <div style={styles.accionesHeader}>
+                        <div style={styles.accionesIzquierda}>
+                          <button style={styles.btnCSV} onClick={exportCSV}>CSV</button>
+                          <button style={styles.btnExcel} onClick={exportExcel}>Excel</button>
+                          <button style={styles.btnPDF} onClick={exportPDF}>Pdf</button>
+                          <label>
+                            Mostrar:
+                            <select
+                              style={styles.selectMostrar}
+                              value={mostrar}
+                              onChange={(e) => setMostrar(Number(e.target.value))}
+                            >
+                              <option value={5}>5</option>
+                              <option value={25}>10</option>
+                              <option value={50}>25</option>
+                              <option value={100}>50</option>
+                              <option value={-1}>Todos</option>
+                            </select>
+                          </label>
+                        </div>
+                        <div style={styles.accionesDerecha}>
+                          <input
+                            type="text"
+                            style={styles.inputBuscar}
+                            placeholder="Buscar..."
+                            value={buscar}
+                            onChange={(e) => setBuscar(e.target.value)}
+                          />
+                          {usuarioActual.rol === "administrador" && (
+                            <button
+                              style={styles.btnCrear}
+                              onClick={() => { setUsuarioEditar(null); setMostrarModal(true); }}
+                            >＋</button>
+                          )}
+                        </div>
                       </div>
-                      <div style={styles.accionesDerecha}>
-                        <input
-                          type="text"
-                          style={styles.inputBuscar}
-                          placeholder="Buscar..."
-                          value={buscar}
-                          onChange={(e) => setBuscar(e.target.value)}
-                        />
-                        {usuarioActual.rol === "administrador" && (
-                          <button style={styles.btnCrear} onClick={() => { setUsuarioEditar(null); setMostrarModal(true); }}>＋</button>
-                        )}
-                      </div>
+                      <BandejaUsuarios
+                        usuarios={usuariosFiltrados}
+                        onEdit={handleEditar}
+                        onToggle={handleToggle}
+                        rolActual={(usuarioActual?.rol as "usuario" | "administrador") ?? "usuario"}
+                      />
                     </div>
-                    <BandejaUsuarios
-                      usuarios={usuariosFiltrados}
-                      onEdit={handleEditar}
-                      onEliminar={handleEliminar}
-                      sidebarWidth={sidebarOpen ? 0 : 0}
-                      rolActual={(usuarioActual?.rol as "usuario" | "administrador") ?? "usuario"}
-                    />
                   </div>
-                </div>
-              )}
-              {pantalla === "perros" && <Perros />}
-              {pantalla === "gatos" && <Gatos />}
-              {pantalla === "adopciones" && <Adopciones />}
-              {pantalla === "voluntarios" && <Voluntarios />}
-              {pantalla === "reportes" && <Reportes />}
-              {pantalla === "configuracion" && <Configuracion />}
-            </main>
+                )}
+                {pantalla === "perros" && <Perros />}
+                {pantalla === "gatos" && <Gatos />}
+                {pantalla === "adopciones" && <Adopciones />}
+                {pantalla === "voluntarios" && <Voluntarios />}
+                {pantalla === "reportes" && <Reportes />}
+                {pantalla === "configuracion" && <Configuracion />}
+              </main>
 
-            {mostrarModal && usuarioActual.rol === "administrador" && (
-              <ModalUsuario
-                usuario={usuarioEditar}
-                onClose={() => { setMostrarModal(false); setUsuarioEditar(null); }}
-                onSave={handleGuardar}
-              />
-            )}
+              {mostrarModal && usuarioActual && (
+                <ModalUsuario
+                  usuario={usuarioEditar}
+                  usuarioLogueado={usuarioActual}
+                  onClose={() => { setMostrarModal(false); setUsuarioEditar(null); }}
+                  onSave={handleGuardar}
+                />
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </IdiomaProvider>
   );
 };
 
