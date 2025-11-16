@@ -10,7 +10,6 @@ let idiomaActual: Idioma = "es";
 export const setIdioma = (nuevoIdioma: Idioma) => {
   idiomaActual = nuevoIdioma;
 };
-
 export const getIdioma = (): Idioma => idiomaActual;
 
 export const t = (clave: string): string => {
