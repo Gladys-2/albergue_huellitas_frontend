@@ -6,9 +6,10 @@ import BandejaUsuarios from "./components/BandejaUsuarios";
 import ModalUsuario from "./components/ModalUsuario";
 import LoginScreen from "./components/LoginScreen";
 import Registro from "./components/Registro";
-import type { Usuario } from "./types/types";
+import type { Usuario, Animal } from "./types/types";
 import Inicio from "./components/pages/Inicio";
 import Perros from "./components/pages/perros";
+import BandejaAnimales from "./components/BandejaAnimal";
 import Gatos from "./components/pages/gatos";
 import Adopciones from "./components/pages/Adopciones";
 import Voluntarios from "./components/pages/Voluntarios";
@@ -18,6 +19,8 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { IdiomaProvider } from "./components/context/IdiomaContext";
+import ModalAnimal from "./components/ModalAnimal";
+
 
 type UsuarioModal = Omit<Usuario, "avatarUrl"> & { id?: number; contrasena?: string };
 
@@ -27,6 +30,7 @@ type Pantalla =
   | "dashboard"
   | "inicio"
   | "usuarios"
+  | "animales"
   | "perros"
   | "gatos"
   | "adopciones"
@@ -38,9 +42,14 @@ type Pantalla =
 const API_URL = import.meta.env.VITE_API_URL;
 
 const App: React.FC = () => {
+  //-----Estado de la pantalla ----//
   const [pantalla, setPantalla] = useState<Pantalla>("login");
+  //----- Sidebar----//
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  //--Usuarios--//
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [usuarioActual, setUsuarioActual] = useState<Usuario | null>(null);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -48,8 +57,11 @@ const App: React.FC = () => {
   const [buscar, setBuscar] = useState("");
   const [mostrar, setMostrar] = useState<number>(10);
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  //---Animal--//
+  const [animales, setAnimales] = useState<Animal[]>([]);
+  const [animalEditar, setAnimalEditar] = useState<Animal | null>(null);
 
+  //--tamaño reposivo de la pantalla  detectar con el hook--//
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
@@ -60,11 +72,13 @@ const App: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  //--cambiar de pantalla--//
   const irLogin = () => setPantalla("login");
   const irRegistro = () => setPantalla("registro");
   const irDashboard = () => setPantalla("dashboard");
   const irInicio = () => setPantalla("inicio");
   const irUsuarios = () => setPantalla("usuarios");
+  const irAnimales = () => setPantalla("animales");
   const irPerros = () => setPantalla("perros");
   const irGatos = () => setPantalla("gatos");
   const irAdopciones = () => setPantalla("adopciones");
@@ -72,11 +86,12 @@ const App: React.FC = () => {
   const irReportes = () => setPantalla("reportes");
   const irConfiguracion = () => setPantalla("configuracion");
 
+  //--Manejo de login exitoso--//
   const handleLoginExitoso = (usuario: Usuario) => {
     setUsuarioActual(usuario);
     irInicio();
   };
-
+  //--Cargar usuarios desde backend--//
   const cargarUsuarios = async () => {
     try {
       const res = await axios.get(`${API_URL}/usuarios`);
@@ -86,12 +101,12 @@ const App: React.FC = () => {
       alert("No se pudo cargar la lista de usuarios.");
     }
   };
-
+  //--Ejecutar carga cuando se entra a la pantalla de usuarios--//
   useEffect(() => {
     if (pantalla === "usuarios") cargarUsuarios();
   }, [pantalla]);
 
-  
+  //--Guardar usuario (crear o actualizar)--//
   const handleGuardar = async (usuario: UsuarioModal) => {
     try {
       if (usuario.id) {
@@ -124,12 +139,12 @@ const App: React.FC = () => {
       alert("Error al guardar el usuario");
     }
   };
-
+  //--Editar usuario--//
   const handleEditar = (usuario: Usuario) => {
     setUsuarioEditar(usuario);
     setMostrarModal(true);
   };
-
+  //--Estado a activo o inactivo
   const handleToggle = (usuario: Usuario) => {
     const nuevosUsuarios: Usuario[] = usuarios.map(u =>
       u.id === usuario.id
@@ -139,6 +154,24 @@ const App: React.FC = () => {
     setUsuarios(nuevosUsuarios);
   };
 
+  //--Filtrado de usuarios para la búsqueda--//
+  const usuariosFiltrados = usuarios
+    .filter((u) => {
+      const textoBuscar = buscar.toLowerCase().trim();
+      const nombre = (u.nombre ?? "").toLowerCase();
+      const apellidoP = (u.apellido_paterno ?? "").toLowerCase();
+      const apellidoM = (u.apellido_materno ?? "").toLowerCase();
+      const correo = (u.correo_electronico ?? "").toLowerCase();
+      return (
+        nombre.startsWith(textoBuscar) ||
+        apellidoP.startsWith(textoBuscar) ||
+        apellidoM.startsWith(textoBuscar) ||
+        correo.startsWith(textoBuscar)
+      );
+    })
+    .slice(0, mostrar > 0 ? mostrar : usuarios.length);
+
+  //--Eportacion de Excel,csv y pdf--//
   const exportCSV = () => {
     const csv = [
       ["Nombre", "Apellido Paterno", "Apellido Materno", "Cédula", "Correo", "Rol", "Estado"],
@@ -203,21 +236,120 @@ const App: React.FC = () => {
     doc.save("usuarios.pdf");
   };
 
-  const usuariosFiltrados = usuarios
-    .filter((u) => {
-      const textoBuscar = buscar.toLowerCase().trim();
-      const nombre = (u.nombre ?? "").toLowerCase();
-      const apellidoP = (u.apellido_paterno ?? "").toLowerCase();
-      const apellidoM = (u.apellido_materno ?? "").toLowerCase();
-      const correo = (u.correo_electronico ?? "").toLowerCase();
-      return (
-        nombre.startsWith(textoBuscar) ||
-        apellidoP.startsWith(textoBuscar) ||
-        apellidoM.startsWith(textoBuscar) ||
-        correo.startsWith(textoBuscar)
-      );
-    })
-    .slice(0, mostrar > 0 ? mostrar : usuarios.length);
+  //--Cargar animales desde backend --//
+  const cargarAnimales = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/animales`);
+      setAnimales(res.data);
+    } catch (error) {
+      console.error("Error al cargar animales:", error);
+      alert("No se pudo cargar la lista de animales.");
+    }
+  };
+
+  //-- Ejecutar carga cuando se entra a la pantalla de animales--//
+  useEffect(() => {
+    if (pantalla === "animales") cargarAnimales();
+  }, [pantalla]);
+
+  //--Editar un animal--//
+  const handleEditarAnimal = (animal: Animal) => {
+    setAnimalEditar({ ...animal }); // copias para no mutar el estado
+  };
+  //--cambiar de estado disponible,adoptado,en cuidado--//
+  const handleToggleAnimal = (animal: Animal) => {
+    setAnimales((prev) =>
+      prev.map((a) =>
+        a.id === animal.id
+          ? {
+            ...a,
+            estado_animal:
+              a.estado_animal === "Disponible"
+                ? "Adoptado"
+                : a.estado_animal === "Adoptado"
+                  ? "En cuidado"
+                  : "Disponible",
+          }
+          : a
+      )
+    );
+  };
+
+  // Agregar nuevo animal
+  const handleAgregarAnimalNuevo = () => {
+    setAnimalEditar({
+      nombre: "",
+      especie: "",
+      raza: "",
+      sexo: "Macho",
+      edad: 0,
+      descripcion: "",
+      estado_animal: "Disponible",
+      foto: "",
+      refugio_id: 1,
+    } as Animal);
+  };
+
+
+  // Guardar o actualizar animal
+  const guardarAnimal = async (animal: Animal) => {
+    try {
+      const url = animal.id
+        ? `${API_URL}/animales/editar-animal/${animal.id}`  // ruta correcta PUT
+        : `${API_URL}/animales/crear-animal`;               // ruta correcta POST
+      const method = animal.id ? "PUT" : "POST";
+
+      // Enviar los datos como JSON, no FormData
+      const data = {
+        nombre: animal.nombre,
+        especie: animal.especie,
+        raza: animal.raza,
+        sexo: animal.sexo,
+        edad: animal.edad,
+        descripcion: animal.descripcion,
+        estado_animal: animal.estado_animal,
+        foto: animal.foto,
+        refugio_id: animal.refugio_id,
+      };
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error("Error al guardar el animal");
+
+      const animalGuardado = await response.json();
+
+      // Actualizar lista de animales en frontend
+      setAnimales((prev) => {
+        const index = prev.findIndex((a) => a.id === animalGuardado.id);
+        if (index !== -1) {
+          const copia = [...prev];
+          copia[index] = animalGuardado;
+          return copia;
+        }
+        return [...prev, animalGuardado]; // si es nuevo, agregar
+      });
+
+      // Cerrar modal
+      setAnimalEditar(null);
+    } catch (error) {
+      console.error(error);
+      alert("Error al guardar el animal");
+    }
+  };
+
+
+  //--Pantalla salir--
+  useEffect(() => {
+    if (pantalla === "salir") {
+      setUsuarioActual(null);
+      irLogin();
+    }
+  }, [pantalla]);
+
 
   const styles: { [key: string]: CSSProperties } = {
     dashboardWrapper: { display: "flex", minHeight: "100vh", background: "linear-gradient(to right, #ffffffff, #ffffff)" },
@@ -237,12 +369,6 @@ const App: React.FC = () => {
     btnCrear: { backgroundColor: "#319795", color: "white", width: "50px", height: "50px", fontSize: "1.5rem", fontWeight: "bold", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "none", cursor: "pointer" },
   };
 
-  useEffect(() => {
-    if (pantalla === "salir") {
-      setUsuarioActual(null);
-      irLogin();
-    }
-  }, [pantalla]);
 
   return (
     <IdiomaProvider>
@@ -261,6 +387,7 @@ const App: React.FC = () => {
                   case "inicio": irInicio(); break;
                   case "dashboard": irDashboard(); break;
                   case "usuarios": irUsuarios(); break;
+                  case "animales": irAnimales(); break;
                   case "perros": irPerros(); break;
                   case "gatos": irGatos(); break;
                   case "adopciones": irAdopciones(); break;
@@ -280,7 +407,13 @@ const App: React.FC = () => {
               }}
             >
               <Navbar toggleSidebar={toggleSidebar} collapsed={!sidebarOpen} usuario={usuarioActual} />
-              <main style={styles.content}>
+              <main
+                style={{
+                  padding: "5rem 1rem 1rem 1rem",
+                  overflowY: "auto",
+                  minHeight: "calc(100vh - 80px)"
+                }}
+              >
                 {pantalla === "inicio" && <Inicio />}
                 {pantalla === "usuarios" && (
                   <div style={styles.bandejaContainer}>
@@ -299,9 +432,9 @@ const App: React.FC = () => {
                               onChange={(e) => setMostrar(Number(e.target.value))}
                             >
                               <option value={5}>5</option>
-                              <option value={25}>10</option>
-                              <option value={50}>25</option>
-                              <option value={100}>50</option>
+                              <option value={10}>10</option>
+                              <option value={25}>25</option>
+                              <option value={50}>50</option>
                               <option value={-1}>Todos</option>
                             </select>
                           </label>
@@ -322,6 +455,8 @@ const App: React.FC = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Bandeja de usuarios */}
                       <BandejaUsuarios
                         usuarios={usuariosFiltrados}
                         onEdit={handleEditar}
@@ -331,6 +466,26 @@ const App: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* --- Bandeja animales --- */}
+                {pantalla === "animales" && (
+                  <BandejaAnimales
+                    animales={animales}
+                    usuarioLogueado={usuarioActual}
+                    onEdit={handleEditarAnimal}
+                    onToggle={handleToggleAnimal}
+                    onAdd={handleAgregarAnimalNuevo} // abrir modal agregar
+                  />
+                )}
+
+                {/* Modal para agregar o editar animal */}
+                {animalEditar && (
+                  <ModalAnimal
+                    animal={animalEditar}
+                    onClose={() => setAnimalEditar(null)}
+                    onSave={guardarAnimal}
+                  />
+                )}
                 {pantalla === "perros" && <Perros />}
                 {pantalla === "gatos" && <Gatos />}
                 {pantalla === "adopciones" && <Adopciones />}
@@ -339,6 +494,7 @@ const App: React.FC = () => {
                 {pantalla === "configuracion" && <Configuracion />}
               </main>
 
+              {/* Modal de usuarios */}
               {mostrarModal && usuarioActual && (
                 <ModalUsuario
                   usuario={usuarioEditar}
