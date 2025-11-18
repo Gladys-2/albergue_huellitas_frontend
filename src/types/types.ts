@@ -28,16 +28,21 @@ export interface Refugio {
 }
 
 export interface Animal {
-  id?: number;
-  nombre: string;
-  especie?: string;
+  id?: number; 
+  nombre: string; 
+  especie?: string; 
   raza?: string;
-  edad?: number;
-  estado?: "Disponible" | "Adoptado" | "En cuidado";
-  foto?: string;
-  refugioId?: number;
-  fecha_creacion?: string;
-  fecha_actualizacion?: string;
+  edad?: number; 
+  descripcion?: string;
+  estado_animal?: "Disponible" | "Adoptado" | "En cuidado"; 
+  foto?: string; 
+  sexo?: "Macho" | "Hembra";
+  refugio_id?: number; 
+  estado?: "Activo" | "Inactivo"; 
+  fecha_creacion?: string; 
+  usuario_creacion?: string; 
+  fecha_modificacion?: string; 
+  usuario_modificacion?: string;
 }
 
 export interface Adopcion {
@@ -68,30 +73,4 @@ export interface Administrador {
   id?: number;
   usuarioId?: number;
   privilegios?: string;
-}
-
-export interface AuditoriaUsuarios {
-  id?: number;
-  usuarioId?: number;
-  accion?: string;
-  descripcion?: string;
-  fecha?: string;
-}
-
-export interface AuditoriaAdopciones {
-  id?: number;
-  adopcionId?: number;
-  usuario_responsable?: string;
-  accion?: string;
-  descripcion?: string;
-  fecha?: string;
-}
-
-export interface AuditoriaDonaciones {
-  id?: number;
-  donacionId?: number;
-  usuario_responsable?: string;
-  accion?: string;
-  descripcion?: string;
-  fecha?: string;
 }
