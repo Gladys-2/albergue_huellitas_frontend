@@ -127,8 +127,8 @@ const wrapperStyle: React.CSSProperties = {
 const glassContainer: React.CSSProperties = {
   width: "90%",
   maxWidth: 370,
-  maxHeight: "95vh", // evita scroll vertical externo
-  overflowY: "auto", // scroll interno si hace falta
+  maxHeight: "95vh",
+  overflowY: "auto",
   textAlign: "center",
   background: "rgba(255, 255, 255, 0.1)",
   borderRadius: "1.25rem",
